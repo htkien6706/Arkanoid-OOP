@@ -16,8 +16,8 @@ class Paddle {
         displayScaledImage(imagePath, scaleFactor);
         image = cropImage(image, THRESHOLD);
 
-        width = image.getWidth();
-        height = image.getHeight();
+        width = 100;
+        height = 10;
     }
 
 
@@ -82,7 +82,18 @@ class Paddle {
 
     // dunfg tis conf gọi ở trong gamepanel, vì gamepanel extends jpanel, nên mới có thể vẽ được vì jpanel mới có hàm paintComponent ở swing và paint ở awt
     public void draw(Graphics2D g2d) {
-        g2d.drawImage(image, x, y, width, height, null);
+        for (int i = 8; i > 0; i--) {
+            float alpha = (float) i / 16;
+            g2d.setColor(new Color(0, 255, 255, (int) (alpha * 255)));
+            g2d.fillRoundRect(x - i, y - i, width + i * 2, height + i * 2, 20, 20);
+        }
+
+        g2d.setColor(new Color(0, 200, 255));
+        g2d.fillRoundRect(x, y, width, height, 15, 15);
+
+        g2d.setColor(Color.WHITE);
+        g2d.setStroke(new BasicStroke(2));
+        g2d.drawRoundRect(x, y, width, height, 15, 15);
     }
 
     void moveLeft() {
@@ -99,5 +110,9 @@ class Paddle {
         if(x > panelWidth - paddle_width) {
             x = panelWidth - paddle_width;
         }
+    }
+
+    public Rectangle getBounds() {
+        return new Rectangle(x, y, width, height);
     }
 }

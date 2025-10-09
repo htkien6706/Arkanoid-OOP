@@ -22,6 +22,10 @@ public class Brick {
         this.destroyed = destroyed;
     }
 
+    public Rectangle getBounds() {
+        return new Rectangle(x, y, width, height);
+    }
+
     public void draw(Graphics2D g2) {
         if (destroyed) return;
 

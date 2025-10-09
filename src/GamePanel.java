@@ -1,38 +1,45 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
+import java.util.ArrayList;
 
-public class GamePanel extends JPanel implements KeyListener {
+public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Ball ball;
     private Paddle paddle;
     private Brick brick;
     private Timer timer;
     private BrickManagement manage;
 
-    int panelWidth = 800;
-    int panelHeight = 600;
+    int PANEL_HEIGHT = 800;
+    int PANEL_WIDTH = 636;
 
-    public GamePanel() {
-        // setup panel
-        setPreferredSize(new Dimension(panelWidth, panelHeight));
-        setBackground(Color.white);
-        setFocusable(true);
-        addKeyListener(this);
 
-        initGameObjects();
+    // main test
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Paddle Test");
+        GamePanel panel = new GamePanel();
 
-        timer = new Timer(16, e -> {
-            ball.move();
-            repaint();
-        });
+        // đặt kích thước panel TRƯỚC khi add vào frame
+        panel.setPreferredSize(new Dimension(panel.PANEL_WIDTH, panel.PANEL_HEIGHT));
 
-        timer.start();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(panel);
+        frame.pack();
+        frame.setResizable(false);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
 
     }
 
-    // vẽ mọi thứ
+    public GamePanel() {
+        // setup panel
+        initPanel();
+        initGameObjects();
+
+        initTimer();
+    }
+
+    // có gì cần vẽ thì vẽ ở trong cái paintCOmpoinent này, gọi lại các hàm draw ở các object đó
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -50,7 +57,7 @@ public class GamePanel extends JPanel implements KeyListener {
         if (key == KeyEvent.VK_LEFT) {
             paddle.moveLeft();
         } else if (key == KeyEvent.VK_RIGHT) {
-            paddle.moveRight(panelWidth);
+            paddle.moveRight(PANEL_WIDTH);
         }
 
         repaint(); // vẽ lại sau khi di chuyển
@@ -63,24 +70,105 @@ public class GamePanel extends JPanel implements KeyListener {
     //hàm chuyên để khởi tạo những đối tượng trong game
     public void initGameObjects() {
         paddle = new Paddle();
-        paddle.x = (panelWidth - paddle.width) / 2;
-        paddle.y = panelHeight - paddle.height - 10; // đặt paddle gần đáy
+        paddle.x = (PANEL_WIDTH - paddle.width) / 2;
+        paddle.y = PANEL_HEIGHT - paddle.height - 10; // đặt paddle gần đáy
 
         ball = new Ball(300, 300);
 
-        manage = new BrickManagement(6, 14, 50, 30, 10);
+        manage = new BrickManagement(6, 10, 50, 30, 10);
     }
 
-    // main test
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Paddle Test");
-        GamePanel panel = new GamePanel();
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(panel);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+
+    public void initPanel() {
+        setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
+        setBackground(Color.white);
+        setFocusable(true);
+        addKeyListener(this);
+
     }
+
+    public void initTimer() {
+        timer = new Timer(10, this);
+        timer.start();
+    }
+
+    public void updateGame() {
+        ball.checkWallColiision(PANEL_HEIGHT, PANEL_WIDTH);
+
+        Rectangle ball_bounds = ball.getBounds();
+        Rectangle paddle_bounds = paddle.getBounds();
+
+        if(hasCollision(ball_bounds, paddle_bounds)) {
+            ball.reverseY();
+            ball.randomizeMove();
+
+            double paddleCenter = paddle.x + paddle.width / 2.0;
+            double hitPos = (ball.x + ball.diameter / 2.0 - paddleCenter) / (paddle.width / 2.0);
+
+            // giới hạn hitPos [-1, 1]
+            hitPos = Math.max(-1, Math.min(1, hitPos));
+
+            double angle = hitPos * Math.toRadians(60); // lệch tối đa 60 độ
+            ball.dX = ball.SPEED * Math.sin(angle);
+            ball.dY = -ball.SPEED * Math.cos(angle);
+
+        }
+
+        ArrayList<Brick> bricks = manage.getBricks();
+        for(int i = 0; i < bricks.size(); i++) {
+            Brick b = bricks.get(i);
+            Rectangle brick_bounds = b.getBounds();
+
+            if(!b.isDestroyed()) {
+                if(hasCollision(ball_bounds, brick_bounds)) {
+                    b.setDestroyed(true);
+
+                    handleBallBounce(ball, b, ball_bounds);
+
+                    // dùng cái hàm nẩy quả bóng lên
+                }
+            }
+        }
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == timer) {
+            ball.move();
+            updateGame();
+            repaint();
+        }
+    }
+
+    public boolean hasCollision(Rectangle r1, Rectangle r2) {
+        return r1.intersects(r2);
+    }
+
+    private void handleBallBounce(Ball ball, Brick brick, Rectangle ballBounds) {
+        Rectangle brickBounds = brick.getBounds();
+
+        double overlapLeft = ballBounds.getMaxX() - brickBounds.getMinX();
+        double overlapRight = brickBounds.getMaxX() - ballBounds.getMinX();
+        double overlapTop = ballBounds.getMaxY() - brickBounds.getMinY();
+        double overlapBottom = brickBounds.getMaxY() - ballBounds.getMinY();
+
+        double minOverlap = Math.min(
+                Math.min(overlapLeft, overlapRight),
+                Math.min(overlapTop, overlapBottom)
+        );
+
+        if(minOverlap == overlapTop || minOverlap == overlapBottom) {
+            ball.reverseY();
+        } else {
+            ball.reverseX();
+        }
+    }
+
+
+
+
+
+
+
 }
 

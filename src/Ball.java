@@ -1,18 +1,22 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 
 public class Ball {
     int x,y;
     double dX, dY;
-    final double SPEED = 6.0;
+    final double SPEED = 4.5;
     int diameter;
+    Random rand = new Random();
 
     Ball(int x, int y) {
         this.x = x;
         this.y = y;
         diameter = 16;
-        dX = SPEED * 0.6; // just initial speed of the ball, change later
-        dY = SPEED * 0.6; // also like dX
+
+        double angle = Math.toRadians(rand.nextInt(60) + 30); // 30°–90°
+        dX = SPEED * Math.cos(angle);
+        dY = SPEED * Math.sin(angle);
     }
 
     //
@@ -26,17 +30,29 @@ public class Ball {
     }
 
     public void move() {
-        x = (int) (x + dX);
-        y = (int) (y + dY);
+        x += dX;
+        y += dY;
+    }
+
+    public void randomizeMove() {
+        dX += (rand.nextDouble() - 0.5) * 0.5;
+    }
+
+    public void reverseX() {
+        dX = -dX;
+    }
+
+    public void reverseY() {
+        dY = -dY;
     }
 
     public void checkWallColiision(int PANEL_HEIGHT, int PANEL_WIDTH) {
         if(x < 0 || x + diameter > PANEL_WIDTH) {
-            dX = -dX; // đổi hướng chuyện động vì góc toi bang goc phan xa
+            reverseX(); // đổi hướng chuyện động vì góc toi bang goc phan xa
         }
 
         else if(y < 0) {
-            dY = -dY; // đổi hướng chuyển động
+            reverseY(); // đổi hướng chuyển động
         }
     }
 
@@ -45,6 +61,12 @@ public class Ball {
         this.y = y;
         dX = SPEED * 0.6;
         dY = SPEED * 0.6;
+    }
+
+
+    // coi quả bóng tròn như là một hình vuông để handle cho dễ nhé
+    public Rectangle getBounds() {
+        return new Rectangle(x, y, diameter, diameter);
     }
 
 
