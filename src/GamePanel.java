@@ -10,26 +10,11 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Timer timer;
     private BrickManagement manage;
 
-    int PANEL_HEIGHT = 800;
-    int PANEL_WIDTH = 636;
+    int PANEL_HEIGHT = 636;
+    int PANEL_WIDTH = 800;
 
 
     // main test
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Paddle Test");
-        GamePanel panel = new GamePanel();
-
-        // đặt kích thước panel TRƯỚC khi add vào frame
-        panel.setPreferredSize(new Dimension(panel.PANEL_WIDTH, panel.PANEL_HEIGHT));
-
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(panel);
-        frame.pack();
-        frame.setResizable(false);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-
-    }
 
     public GamePanel() {
         // setup panel
@@ -71,14 +56,12 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     public void initGameObjects() {
         paddle = new Paddle();
         paddle.x = (PANEL_WIDTH - paddle.width) / 2;
-        paddle.y = PANEL_HEIGHT - paddle.height - 10; // đặt paddle gần đáy
+        paddle.y = PANEL_HEIGHT - paddle.height - 50; // đặt paddle gần đáy
 
         ball = new Ball(300, 300);
 
-        manage = new BrickManagement(6, 10, 50, 30, 10);
+        manage = new BrickManagement(6, 12, 50, 30, 10);
     }
-
-
 
     public void initPanel() {
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
@@ -162,6 +145,22 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         } else {
             ball.reverseX();
         }
+    }
+
+    public void initFrame() {
+        JFrame frame = new JFrame("Paddle Test");
+        GamePanel panel = new GamePanel();
+
+        // đặt kích thước panel TRƯỚC khi add vào frame
+        panel.setPreferredSize(new Dimension(panel.PANEL_WIDTH, panel.PANEL_HEIGHT));
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(panel);
+        frame.pack();
+        frame.setResizable(false);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+
     }
 
 

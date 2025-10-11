@@ -6,7 +6,7 @@ import java.io.File;
 class Paddle {
     int x, y; // toa do x, y cua paddle de sau minh co the draw duoc
     int width, height;
-    int dx = 10; // modify later
+    int dx = 20; // modify later
     BufferedImage image;
 
     public Paddle() {

@@ -3,52 +3,12 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 
-
-public class MenuPanel extends JFrame{
-    private JPanel menuPanel;
+// ĐỔI extends JFrame THÀNH extends JPanel
+public class MenuPanel extends JPanel {
 
     public MenuPanel() {
-        setTitle("ARKANOID");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setResizable(false);
-
-        // Panel chính với gradient background
-        menuPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                // Gradient background từ tím đậm sang xanh dương
-                GradientPaint gradient = new GradientPaint(
-                        0, 0, new Color(25, 25, 60),
-                        0, getHeight(), new Color(15, 32, 70)
-                );
-                g2d.setPaint(gradient);
-                g2d.fillRect(0, 0, getWidth(), getHeight());
-
-                // Vẽ các "ngôi sao" background
-                g2d.setColor(new Color(255, 255, 255, 100));
-                for (int i = 0; i < 50; i++) {
-                    int x = (i * 137) % getWidth();
-                    int y = (i * 241) % getHeight();
-                    g2d.fillOval(x, y, 2, 2);
-                }
-
-                // Vẽ grid pattern
-                g2d.setColor(new Color(100, 150, 255, 30));
-                for (int i = 0; i < getWidth(); i += 40) {
-                    g2d.drawLine(i, 0, i, getHeight());
-                }
-                for (int i = 0; i < getHeight(); i += 40) {
-                    g2d.drawLine(0, i, getWidth(), i);
-                }
-            }
-        };
-        menuPanel.setLayout(null);
+        setLayout(null);
+        setPreferredSize(new Dimension(800, 600));
 
         // Title label với hiệu ứng neon
         JLabel titleLabel = new JLabel("ARKANOID") {
@@ -73,7 +33,7 @@ public class MenuPanel extends JFrame{
         };
         titleLabel.setBounds(0, 50, 800, 100);
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
-        menuPanel.add(titleLabel);
+        add(titleLabel);
 
         // Subtitle
         JLabel subtitleLabel = new JLabel("BRICK BREAKER");
@@ -81,7 +41,7 @@ public class MenuPanel extends JFrame{
         subtitleLabel.setForeground(new Color(255, 200, 100));
         subtitleLabel.setBounds(0, 140, 800, 30);
         subtitleLabel.setHorizontalAlignment(JLabel.CENTER);
-        menuPanel.add(subtitleLabel);
+        add(subtitleLabel);
 
         // Buttons
         String[] buttonTexts = {"START GAME", "HIGH SCORES", "OPTIONS", "EXIT"};
@@ -94,7 +54,8 @@ public class MenuPanel extends JFrame{
             final int index = i;
             button.addActionListener(e -> {
                 if (index == 0) {
-                    JOptionPane.showMessageDialog(this, "Starting game...");
+                    System.out.println("START GAME clicked!"); // Debug
+                    Main.startGame();
                 } else if (index == 3) {
                     System.exit(0);
                 } else {
@@ -102,7 +63,7 @@ public class MenuPanel extends JFrame{
                 }
             });
 
-            menuPanel.add(button);
+            add(button);
         }
 
         // Version label
@@ -110,7 +71,7 @@ public class MenuPanel extends JFrame{
         versionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
         versionLabel.setForeground(new Color(150, 150, 150));
         versionLabel.setBounds(10, 540, 100, 20);
-        menuPanel.add(versionLabel);
+        add(versionLabel);
 
         // Copyright label
         JLabel copyrightLabel = new JLabel("© 2025 - Press SPACE to Start");
@@ -118,20 +79,51 @@ public class MenuPanel extends JFrame{
         copyrightLabel.setForeground(new Color(150, 150, 150));
         copyrightLabel.setBounds(0, 540, 800, 20);
         copyrightLabel.setHorizontalAlignment(JLabel.CENTER);
-        menuPanel.add(copyrightLabel);
+        add(copyrightLabel);
+    }
 
-        add(menuPanel);
-        setVisible(true);
+    // VẼ BACKGROUND Ở ĐÂY (di chuyển từ menuPanel bên trong ra ngoài)
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // Gradient background từ tím đậm sang xanh dương
+        GradientPaint gradient = new GradientPaint(
+                0, 0, new Color(25, 25, 60),
+                0, getHeight(), new Color(15, 32, 70)
+        );
+        g2d.setPaint(gradient);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+
+        // Vẽ các "ngôi sao" background
+        g2d.setColor(new Color(255, 255, 255, 100));
+        for (int i = 0; i < 50; i++) {
+            int x = (i * 137) % getWidth();
+            int y = (i * 241) % getHeight();
+            g2d.fillOval(x, y, 2, 2);
+        }
+
+        // Vẽ grid pattern
+        g2d.setColor(new Color(100, 150, 255, 30));
+        for (int i = 0; i < getWidth(); i += 40) {
+            g2d.drawLine(i, 0, i, getHeight());
+        }
+        for (int i = 0; i < getHeight(); i += 40) {
+            g2d.drawLine(0, i, getWidth(), i);
+        }
     }
 
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text) {
-            private boolean hover = false;
-
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // Lấy hover state
+                boolean hover = Boolean.TRUE.equals(getClientProperty("hover"));
 
                 // Button background với gradient
                 if (hover) {
@@ -176,18 +168,17 @@ public class MenuPanel extends JFrame{
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                ((JButton)e.getSource()).putClientProperty("hover", true);
+                button.putClientProperty("hover", true);
                 button.repaint();
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                ((JButton)e.getSource()).putClientProperty("hover", false);
+                button.putClientProperty("hover", false);
                 button.repaint();
             }
         });
 
         return button;
     }
-
 }
