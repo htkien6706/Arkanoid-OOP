@@ -56,7 +56,7 @@ public class MenuPanel extends JPanel {
                 if (index == 0) {
                     System.out.println("START GAME clicked!"); // Debug
                     Main.startGame();
-                }  else if (index == 3) {
+                }  else if (index == 4) {
                     System.exit(0);
                 }
 
