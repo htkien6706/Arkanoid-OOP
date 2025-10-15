@@ -5,6 +5,7 @@ import java.awt.geom.*;
 
 // ĐỔI extends JFrame THÀNH extends JPanel
 public class MenuPanel extends JPanel {
+    private SoundManager sound = new SoundManager();
 
     public MenuPanel() {
         setLayout(null);
@@ -44,24 +45,29 @@ public class MenuPanel extends JPanel {
         add(subtitleLabel);
 
         // Buttons
-        String[] buttonTexts = {"START GAME", "HIGH SCORES", "OPTIONS", "EXIT"};
+        String[] buttonTexts = {"START GAME", "HIGH SCORES", "SHOP", "OPTIONS", "EXIT"};
         int startY = 220;
 
         for (int i = 0; i < buttonTexts.length; i++) {
             JButton button = createStyledButton(buttonTexts[i]);
-            button.setBounds(250, startY + (i * 70), 300, 50);
+            button.setBounds(250, startY + (i * 70), 300, 40);
 
             final int index = i;
             button.addActionListener(e -> {
+                sound.playSound("click.wav");
                 if (index == 0) {
                     System.out.println("START GAME clicked!"); // Debug
                     Main.startGame();
-                } else if (index == 3) {
+                }  else if (index == 3) {
                     System.exit(0);
-                } else {
+                }
+
+                else {
                     JOptionPane.showMessageDialog(this, buttonTexts[index] + " clicked!");
                 }
             });
+
+
 
             add(button);
         }

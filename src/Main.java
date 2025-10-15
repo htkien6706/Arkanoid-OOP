@@ -3,6 +3,7 @@ import javax.swing.*;
 public class Main {
     private static JFrame frame;
 
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             frame = new JFrame("ARKANOID");
@@ -34,4 +35,5 @@ public class Main {
         frame.repaint();
         gamePanel.requestFocusInWindow(); // Quan trọng để nhận input từ bàn phím
     }
+
 }
