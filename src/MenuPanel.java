@@ -5,7 +5,6 @@ import java.awt.geom.*;
 
 // ĐỔI extends JFrame THÀNH extends JPanel
 public class MenuPanel extends JPanel {
-    private SoundManager sound = new SoundManager();
 
     public MenuPanel() {
         setLayout(null);
@@ -54,7 +53,6 @@ public class MenuPanel extends JPanel {
 
             final int index = i;
             button.addActionListener(e -> {
-                sound.playSound("click.wav");
                 if (index == 0) {
                     System.out.println("START GAME clicked!"); // Debug
                     Main.startGame();
