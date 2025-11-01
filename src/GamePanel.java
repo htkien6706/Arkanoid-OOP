@@ -9,32 +9,57 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Brick brick;
     private Timer timer;
     private BrickManagement manage;
+    private ShopManager shopManager;
+    private CoinManager coinManager;
+
 
     int PANEL_HEIGHT = 636;
     int PANEL_WIDTH = 800;
 
+    public GamePanel(ShopManager shopManager, CoinManager coinManager) {
+        this.shopManager = shopManager;
+        this.coinManager = coinManager;
 
-    // main test
 
-    public GamePanel() {
-        // setup panel
         initPanel();
         initGameObjects();
-
         initTimer();
+        SoundManager.getInstance().playBackgroundMusic("game_music");
     }
 
-    // có gì cần vẽ thì vẽ ở trong cái paintCOmpoinent này, gọi lại các hàm draw ở các object đó
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        paddle.draw((Graphics2D) g);
-        ball.draw((Graphics2D) g);
-        manage.draw((Graphics2D) g);
+        Graphics2D g2d = (Graphics2D) g;
+
+        // Vẽ background gradient
+        GradientPaint gradient = new GradientPaint(
+                0, 0, new Color(15, 15, 30),
+                0, getHeight(), new Color(30, 30, 50)
+        );
+        g2d.setPaint(gradient);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+
+        // Vẽ các đối tượng game
+        paddle.draw(g2d, shopManager.getPaddleColor());
+        ball.draw(g2d, shopManager.getBallColor());
+        manage.draw(g2d);
+
+        // Hiển thị điểm và coins
+        drawUI(g2d);
     }
 
+    private void drawUI(Graphics2D g2d) {
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    // xử lý phím
+        // Hiển thị coins
+        g2d.setColor(Color.YELLOW);
+        g2d.setFont(new Font("Arial", Font.BOLD, 20));
+        g2d.drawString("" + coinManager.getCoins(), 20, 30);
+
+
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
@@ -43,20 +68,20 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             paddle.moveLeft();
         } else if (key == KeyEvent.VK_RIGHT) {
             paddle.moveRight(PANEL_WIDTH);
+        } else if (key == KeyEvent.VK_ESCAPE) {
+            Main.showMenu();
         }
 
-        repaint(); // vẽ lại sau khi di chuyển
+        repaint();
     }
 
     @Override public void keyReleased(KeyEvent e) {}
     @Override public void keyTyped(KeyEvent e) {}
 
-
-    //hàm chuyên để khởi tạo những đối tượng trong game
     public void initGameObjects() {
         paddle = new Paddle();
         paddle.x = (PANEL_WIDTH - paddle.width) / 2;
-        paddle.y = PANEL_HEIGHT - paddle.height - 50; // đặt paddle gần đáy
+        paddle.y = PANEL_HEIGHT - paddle.height - 50;
 
         ball = new Ball(300, 300);
 
@@ -65,10 +90,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
     public void initPanel() {
         setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
-        setBackground(Color.white);
+        setBackground(Color.BLACK);
         setFocusable(true);
         addKeyListener(this);
-
     }
 
     public void initTimer() {
@@ -85,17 +109,15 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         if(hasCollision(ball_bounds, paddle_bounds)) {
             ball.reverseY();
             ball.randomizeMove();
-
+            SoundManager.getInstance().playSound("paddle_hit");
             double paddleCenter = paddle.x + paddle.width / 2.0;
             double hitPos = (ball.x + ball.diameter / 2.0 - paddleCenter) / (paddle.width / 2.0);
 
-            // giới hạn hitPos [-1, 1]
             hitPos = Math.max(-1, Math.min(1, hitPos));
 
-            double angle = hitPos * Math.toRadians(60); // lệch tối đa 60 độ
+            double angle = hitPos * Math.toRadians(60);
             ball.dX = ball.SPEED * Math.sin(angle);
             ball.dY = -ball.SPEED * Math.cos(angle);
-
         }
 
         ArrayList<Brick> bricks = manage.getBricks();
@@ -106,12 +128,45 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             if(!b.isDestroyed()) {
                 if(hasCollision(ball_bounds, brick_bounds)) {
                     b.setDestroyed(true);
+                    SoundManager.getInstance().playSound("brick_break");
+                    // Thêm coins và điểm khi phá gạch
+                    coinManager.earnCoinsFromBrick();
+
 
                     handleBallBounce(ball, b, ball_bounds);
-
-                    // dùng cái hàm nẩy quả bóng lên
                 }
             }
+        }
+
+        // Kiểm tra game over
+        if(ball.isFallingToGround(PANEL_HEIGHT)) {
+            timer.stop();
+            SoundManager.getInstance().playSound("game_over");
+            int option = JOptionPane.showConfirmDialog(
+                    this,
+                    "Game Over!\nĐiểm: " + "\nCoins: " + coinManager.getCoins() + "\n\nChơi lại?",
+                    "Game Over",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if(option == JOptionPane.YES_OPTION) {
+                resetGame();
+            } else {
+                Main.showMenu();
+            }
+        }
+
+        // Kiểm tra thắng
+        if(manage.allBricksDestroyed()) {
+            timer.stop();
+            coinManager.addCoins(100); // Thưởng khi hoàn thành màn
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Chúc mừng! Bạn đã hoàn thành màn!\n+100 coins bonus",
+                    "Chiến thắng",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            Main.showMenu();
         }
     }
 
@@ -147,27 +202,10 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         }
     }
 
-    public void initFrame() {
-        JFrame frame = new JFrame("Paddle Test");
-        GamePanel panel = new GamePanel();
+    private void resetGame() {
 
-        // đặt kích thước panel TRƯỚC khi add vào frame
-        panel.setPreferredSize(new Dimension(panel.PANEL_WIDTH, panel.PANEL_HEIGHT));
-
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(panel);
-        frame.pack();
-        frame.setResizable(false);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-
+        initGameObjects();
+        timer.start();
+        repaint();
     }
-
-
-
-
-
-
-
 }
-
