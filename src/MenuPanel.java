@@ -1,10 +1,21 @@
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-import java.awt.geom.*;
+
 
 // ĐỔI extends JFrame THÀNH extends JPanel
 public class MenuPanel extends JPanel {
+    private MainFrame parentFrame;
+
+    // Thêm biến cho animation
+    private float glowAlpha = 0f;
+    private boolean glowIncreasing = true;
+    private int starOffset = 0;
+    private float buttonAlpha = 0f;
+
+    public MenuPanel(MainFrame parentFrame) {
+        this.parentFrame = parentFrame;
+    }
 
     public MenuPanel() {
         setLayout(null);
@@ -17,13 +28,17 @@ public class MenuPanel extends JPanel {
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+                // Hiệu ứng sáng dần
+                float alpha = Math.min(1f, Math.max(0f, glowAlpha));
+                Color glow = new Color(0f, 1f, 1f, alpha);
+
                 // Shadow/Glow effect
-                g2d.setColor(new Color(0, 255, 255, 100));
+                g2d.setColor(glow);
                 g2d.setFont(new Font("Arial Black", Font.BOLD, 72));
                 for (int i = 0; i < 10; i++) {
                     g2d.drawString("ARKANOID",
-                            getWidth()/2 - 220 + (int)(Math.random() * 4),
-                            80 + (int)(Math.random() * 4));
+                            getWidth()/2 - 220 + (int)(Math.random() * 3),
+                            80 + (int)(Math.random() * 3));
                 }
 
                 // Main text
@@ -54,18 +69,14 @@ public class MenuPanel extends JPanel {
             final int index = i;
             button.addActionListener(e -> {
                 if (index == 0) {
-                    System.out.println("START GAME clicked!"); // Debug
+                    System.out.println("START GAME clicked!");
                     Main.startGame();
-                }  else if (index == 4) {
+                } else if (index == 4) {
                     System.exit(0);
-                }
-
-                else {
+                } else {
                     JOptionPane.showMessageDialog(this, buttonTexts[index] + " clicked!");
                 }
             });
-
-
 
             add(button);
         }
@@ -77,23 +88,45 @@ public class MenuPanel extends JPanel {
         versionLabel.setBounds(10, 540, 100, 20);
         add(versionLabel);
 
-        // Copyright label
+        // Copyright
         JLabel copyrightLabel = new JLabel("© 2025 - Press SPACE to Start");
         copyrightLabel.setFont(new Font("Arial", Font.PLAIN, 12));
         copyrightLabel.setForeground(new Color(150, 150, 150));
         copyrightLabel.setBounds(0, 540, 800, 20);
         copyrightLabel.setHorizontalAlignment(JLabel.CENTER);
         add(copyrightLabel);
+
+        // 🔥 Thêm Timer cho animation
+        Timer timer = new Timer(30, e -> {
+            // Hiệu ứng sáng cho tiêu đề
+            if (glowIncreasing) {
+                glowAlpha += 0.02f;
+                if (glowAlpha >= 1f) glowIncreasing = false;
+            } else {
+                glowAlpha -= 0.02f;
+                if (glowAlpha <= 0.3f) glowIncreasing = true;
+            }
+
+            // Hiệu ứng di chuyển sao
+            starOffset += 1;
+            if (starOffset > getHeight()) starOffset = 0;
+
+            // Fade in nút
+            if (buttonAlpha < 1f) buttonAlpha += 0.02f;
+
+            repaint();
+        });
+        timer.start();
     }
 
-    // VẼ BACKGROUND Ở ĐÂY (di chuyển từ menuPanel bên trong ra ngoài)
+    // Vẽ background + hiệu ứng chuyển động
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Gradient background từ tím đậm sang xanh dương
+        // Gradient nền
         GradientPaint gradient = new GradientPaint(
                 0, 0, new Color(25, 25, 60),
                 0, getHeight(), new Color(15, 32, 70)
@@ -101,16 +134,16 @@ public class MenuPanel extends JPanel {
         g2d.setPaint(gradient);
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
-        // Vẽ các "ngôi sao" background
+        // Các "ngôi sao" di chuyển
         g2d.setColor(new Color(255, 255, 255, 100));
-        for (int i = 0; i < 50; i++) {
-            int x = (i * 137) % getWidth();
-            int y = (i * 241) % getHeight();
+        for (int i = 0; i < 60; i++) {
+            int x = (i * 131) % getWidth();
+            int y = ((i * 241) + starOffset) % getHeight();
             g2d.fillOval(x, y, 2, 2);
         }
 
-        // Vẽ grid pattern
-        g2d.setColor(new Color(100, 150, 255, 30));
+        // Grid nhẹ
+        g2d.setColor(new Color(100, 150, 255, 25));
         for (int i = 0; i < getWidth(); i += 40) {
             g2d.drawLine(i, 0, i, getHeight());
         }
@@ -126,32 +159,23 @@ public class MenuPanel extends JPanel {
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Lấy hover state
+                // Fade in mượt
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, buttonAlpha));
+
                 boolean hover = Boolean.TRUE.equals(getClientProperty("hover"));
+                GradientPaint gp = hover ?
+                        new GradientPaint(0, 0, new Color(0, 150, 255),
+                                0, getHeight(), new Color(0, 100, 200)) :
+                        new GradientPaint(0, 0, new Color(50, 50, 100),
+                                0, getHeight(), new Color(30, 30, 70));
 
-                // Button background với gradient
-                if (hover) {
-                    GradientPaint gp = new GradientPaint(
-                            0, 0, new Color(0, 150, 255),
-                            0, getHeight(), new Color(0, 100, 200)
-                    );
-                    g2d.setPaint(gp);
-                } else {
-                    GradientPaint gp = new GradientPaint(
-                            0, 0, new Color(50, 50, 100),
-                            0, getHeight(), new Color(30, 30, 70)
-                    );
-                    g2d.setPaint(gp);
-                }
-
+                g2d.setPaint(gp);
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
 
-                // Border
                 g2d.setColor(hover ? new Color(0, 200, 255) : new Color(100, 100, 150));
                 g2d.setStroke(new BasicStroke(2));
                 g2d.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 15, 15);
 
-                // Text
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(getFont());
                 FontMetrics fm = g2d.getFontMetrics();
@@ -175,7 +199,7 @@ public class MenuPanel extends JPanel {
                 button.putClientProperty("hover", true);
                 button.repaint();
             }
-
+            
             @Override
             public void mouseExited(MouseEvent e) {
                 button.putClientProperty("hover", false);
