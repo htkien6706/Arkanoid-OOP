@@ -41,4 +41,14 @@ public class BrickManagement {
     public ArrayList<Brick> getBricks() {
         return Bricks;
     }
+
+    // Kiểm tra tất cả gạch đã bị phá chưa
+    public boolean allBricksDestroyed() {
+        for(Brick brick : Bricks) {
+            if(!brick.isDestroyed()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

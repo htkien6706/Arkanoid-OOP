@@ -3,13 +3,12 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 
-// ĐỔI extends JFrame THÀNH extends JPanel
 public class MenuPanel extends JPanel {
 
     public MenuPanel() {
         setLayout(null);
         setPreferredSize(new Dimension(800, 600));
-
+        SoundManager.getInstance().playBackgroundMusic("menu_music");
         // Title label với hiệu ứng neon
         JLabel titleLabel = new JLabel("ARKANOID") {
             @Override
@@ -30,6 +29,7 @@ public class MenuPanel extends JPanel {
                 g2d.setColor(new Color(0, 255, 255));
                 g2d.drawString("ARKANOID", getWidth()/2 - 220, 80);
             }
+
         };
         titleLabel.setBounds(0, 50, 800, 100);
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -53,19 +53,24 @@ public class MenuPanel extends JPanel {
 
             final int index = i;
             button.addActionListener(e -> {
+                SoundManager.getInstance().playSound("click");
                 if (index == 0) {
-                    System.out.println("START GAME clicked!"); // Debug
+                    System.out.println("START GAME clicked!");
                     Main.startGame();
-                }  else if (index == 4) {
+                } else if (index == 2) {
+                    System.out.println("SHOP clicked!");
+                    Main.showShop();
+                } else if (index == 3) {
+                    System.out.println("OPTION clicked!");
+                    Main.showOptions();
+                }
+                else if (index == 4) {
                     System.exit(0);
                 }
-
                 else {
-                    JOptionPane.showMessageDialog(this, buttonTexts[index] + " clicked!");
+                    JOptionPane.showMessageDialog(this, buttonTexts[index] + " - Đang phát triển!");
                 }
             });
-
-
 
             add(button);
         }
@@ -78,7 +83,7 @@ public class MenuPanel extends JPanel {
         add(versionLabel);
 
         // Copyright label
-        JLabel copyrightLabel = new JLabel("© 2025 - Press SPACE to Start");
+        JLabel copyrightLabel = new JLabel("© 2025 - Nhấn SPACE để bắt đầu");
         copyrightLabel.setFont(new Font("Arial", Font.PLAIN, 12));
         copyrightLabel.setForeground(new Color(150, 150, 150));
         copyrightLabel.setBounds(0, 540, 800, 20);
@@ -86,14 +91,13 @@ public class MenuPanel extends JPanel {
         add(copyrightLabel);
     }
 
-    // VẼ BACKGROUND Ở ĐÂY (di chuyển từ menuPanel bên trong ra ngoài)
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Gradient background từ tím đậm sang xanh dương
+        // Gradient background
         GradientPaint gradient = new GradientPaint(
                 0, 0, new Color(25, 25, 60),
                 0, getHeight(), new Color(15, 32, 70)
@@ -126,10 +130,8 @@ public class MenuPanel extends JPanel {
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Lấy hover state
                 boolean hover = Boolean.TRUE.equals(getClientProperty("hover"));
 
-                // Button background với gradient
                 if (hover) {
                     GradientPaint gp = new GradientPaint(
                             0, 0, new Color(0, 150, 255),
@@ -146,12 +148,10 @@ public class MenuPanel extends JPanel {
 
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
 
-                // Border
                 g2d.setColor(hover ? new Color(0, 200, 255) : new Color(100, 100, 150));
                 g2d.setStroke(new BasicStroke(2));
                 g2d.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 15, 15);
 
-                // Text
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(getFont());
                 FontMetrics fm = g2d.getFontMetrics();
@@ -168,7 +168,6 @@ public class MenuPanel extends JPanel {
         button.setContentAreaFilled(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Hover effect
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
