@@ -4,24 +4,26 @@ public class Main {
     private static JFrame frame;
     private static ShopManager shopManager;
     private static CoinManager coinManager;
+    private static ScoreManager scoreManager; // THÊM MỚI
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            // Khởi tạo các manager
-            shopManager = new ShopManager();
-            coinManager = new CoinManager();
-            SoundManager.getInstance();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                // Khởi tạo các manager
+                shopManager = new ShopManager();
+                coinManager = new CoinManager();
+                scoreManager = new ScoreManager(); // THÊM MỚI
+                SoundManager.getInstance();
 
-            frame = new JFrame("ARKANOID");
-            frame.setSize(800, 636);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setLocationRelativeTo(null);
-            frame.setResizable(false);
+                frame = new JFrame("ARKANOID");
+                frame.setSize(800, 636);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setLocationRelativeTo(null);
+                frame.setResizable(false);
 
-            // Hiển thị menu đầu tiên
-            showMenu();
-
-            frame.setVisible(true);
+                showMenu();
+                frame.setVisible(true);
+            }
         });
     }
 
@@ -51,6 +53,7 @@ public class Main {
         frame.revalidate();
         frame.repaint();
     }
+
     public static void showOptions() {
         frame.getContentPane().removeAll();
         OptionsPanel optionsPanel = new OptionsPanel();
@@ -58,11 +61,26 @@ public class Main {
         frame.revalidate();
         frame.repaint();
     }
+
+    // THÊM METHOD MỚI
+    public static void showHighScores() {
+        frame.getContentPane().removeAll();
+        HighScorePanel highScorePanel = new HighScorePanel(scoreManager);
+        frame.add(highScorePanel);
+        frame.revalidate();
+        frame.repaint();
+    }
+
     public static ShopManager getShopManager() {
         return shopManager;
     }
 
     public static CoinManager getCoinManager() {
         return coinManager;
+    }
+
+    // THÊM METHOD MỚI
+    public static ScoreManager getScoreManager() {
+        return scoreManager;
     }
 }

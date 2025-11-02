@@ -57,18 +57,18 @@ public class MenuPanel extends JPanel {
                 if (index == 0) {
                     System.out.println("START GAME clicked!");
                     Main.startGame();
+                } else if (index == 1) {
+                    // ĐÃ SỬA: Gọi showHighScores() thay vì thông báo "Đang phát triển"
+                    System.out.println("HIGH SCORES clicked!");
+                    Main.showHighScores();
                 } else if (index == 2) {
                     System.out.println("SHOP clicked!");
                     Main.showShop();
                 } else if (index == 3) {
                     System.out.println("OPTION clicked!");
                     Main.showOptions();
-                }
-                else if (index == 4) {
+                } else if (index == 4) {
                     System.exit(0);
-                }
-                else {
-                    JOptionPane.showMessageDialog(this, buttonTexts[index] + " - Đang phát triển!");
                 }
             });
 

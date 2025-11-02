@@ -5,7 +5,7 @@ import java.util.Random;
 public class Ball {
     int x, y;
     double dX, dY;
-    final double SPEED = 5;
+    final double SPEED = 4;
     int diameter;
     Random rand = new Random();
 
