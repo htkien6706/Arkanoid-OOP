@@ -5,18 +5,19 @@ import java.util.ArrayList;
 
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
     private Ball ball;
-    private ArrayList<Ball> extraBalls; // Cho multi-ball
+    private ArrayList<Ball> extraBalls;
     private Paddle paddle;
     private Timer timer;
     private BrickManagement manage;
+    private ParticleManager particleManager;
     private ShopManager shopManager;
     private CoinManager coinManager;
     private ScoreManager scoreManager;
-    private PowerUpManager powerUpManager; // THÊM MỚI
+    private PowerUpManager powerUpManager;
+    private boolean isResumed = false;
     private int score = 0;
-    private int lives = 3; // THÊM MỚI
+    private int lives = 3;
 
-    // Power-up states
     private boolean laserActive = false;
     private long laserEndTime = 0;
     private long powerUpEndTime = 0;
@@ -29,8 +30,9 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         this.shopManager = shopManager;
         this.coinManager = coinManager;
         this.scoreManager = Main.getScoreManager();
-        this.powerUpManager = new PowerUpManager(); // THÊM MỚI
-        this.extraBalls = new ArrayList<>(); // THÊM MỚI
+        this.powerUpManager = new PowerUpManager();
+        this.extraBalls = new ArrayList<>();
+        this.particleManager = new ParticleManager();
 
         initPanel();
         initGameObjects();
@@ -43,7 +45,6 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
 
-        // Vẽ background gradient
         GradientPaint gradient = new GradientPaint(
                 0, 0, new Color(15, 15, 30),
                 0, getHeight(), new Color(30, 30, 50)
@@ -51,43 +52,37 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         g2d.setPaint(gradient);
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
-        // Vẽ các đối tượng game
         paddle.draw(g2d, shopManager.getPaddleColor());
         ball.draw(g2d, shopManager.getBallColor());
 
-        // Vẽ extra balls
         for (Ball extraBall : extraBalls) {
             extraBall.draw(g2d, shopManager.getBallColor());
         }
 
         manage.draw(g2d);
-        powerUpManager.draw(g2d); // THÊM MỚI
+        powerUpManager.draw(g2d);  // CHỈ GỌI 1 LẦN
+        particleManager.draw(g2d);
 
-        // Hiển thị UI
         drawUI(g2d);
     }
 
     private void drawUI(Graphics2D g2d) {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Score
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Arial", Font.BOLD, 20));
         g2d.drawString("Score: " + score, 20, 30);
 
-        // Lives
         g2d.setColor(new Color(255, 100, 100));
         g2d.drawString("Lives: " + lives, 20, 55);
 
-        // Coins
         g2d.setColor(Color.YELLOW);
-        g2d.drawString("💰 " + coinManager.getCoins(), PANEL_WIDTH - 120, 30);
+        g2d.drawString("Coin: " + coinManager.getCoins(), PANEL_WIDTH - 120, 30);
 
-        // Active power-up indicator
         if (laserActive) {
             g2d.setColor(Color.YELLOW);
             g2d.setFont(new Font("Arial", Font.BOLD, 14));
-            g2d.drawString("⚡ LASER ACTIVE", PANEL_WIDTH / 2 - 60, 30);
+            g2d.drawString("LASER ACTIVE", PANEL_WIDTH / 2 - 60, 30);
         }
     }
 
@@ -100,12 +95,12 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         } else if (key == KeyEvent.VK_RIGHT) {
             paddle.moveRight(PANEL_WIDTH);
         } else if (key == KeyEvent.VK_SPACE && laserActive) {
-            // Bắn laser
             fireLaser();
         } else if (key == KeyEvent.VK_ESCAPE) {
-            Main.showMenu();
+            saveCurrentGame();   // Lưu game
+            stopGame();          // DỪNG TIMER HOÀN TOÀN
+            Main.showMenu();     // Về menu
         }
-
         repaint();
     }
 
@@ -126,7 +121,6 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         ball = new Ball(300, 300);
         extraBalls.clear();
-
         manage = new BrickManagement(6, 12, 50, 30, 10);
     }
 
@@ -143,44 +137,33 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     }
 
     public void updateGame() {
-        // Cập nhật power-ups
         powerUpManager.update(PANEL_HEIGHT);
-
-        // Kiểm tra hết hiệu lực power-up
         checkPowerUpExpiration();
-
-        // Cập nhật bóng chính
         updateBall(ball);
+        particleManager.update();
 
-        // Cập nhật extra balls
         for (int i = extraBalls.size() - 1; i >= 0; i--) {
             Ball extraBall = extraBalls.get(i);
             updateBall(extraBall);
-
             if (extraBall.isFallingToGround(PANEL_HEIGHT)) {
                 extraBalls.remove(i);
             }
         }
 
-        // Kiểm tra va chạm power-up với paddle
         checkPowerUpCollision();
-
-        // Kiểm tra laser bắn trúng gạch
         checkLaserCollision();
 
         ArrayList<Brick> bricks = manage.getBricks();
-        for(int i = 0; i < bricks.size(); i++) {
+        for (int i = 0; i < bricks.size(); i++) {
             Brick b = bricks.get(i);
             Rectangle brick_bounds = b.getBounds();
 
-            if(!b.isDestroyed()) {
-                if(hasCollision(ball.getBounds(), brick_bounds)) {
+            if (!b.isDestroyed()) {
+                if (hasCollision(ball.getBounds(), brick_bounds)) {
                     destroyBrick(b, ball);
                 }
-
-                // Kiểm tra extra balls
                 for (Ball extraBall : extraBalls) {
-                    if(hasCollision(extraBall.getBounds(), brick_bounds)) {
+                    if (hasCollision(extraBall.getBounds(), brick_bounds)) {
                         destroyBrick(b, extraBall);
                         break;
                     }
@@ -188,21 +171,17 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             }
         }
 
-        // Kiểm tra game over
-        if(ball.isFallingToGround(PANEL_HEIGHT) && extraBalls.isEmpty()) {
+        if (ball.isFallingToGround(PANEL_HEIGHT) && extraBalls.isEmpty()) {
             lives--;
-
             if (lives <= 0) {
                 gameOver();
             } else {
-                // Reset ball nhưng giữ game tiếp tục
                 ball.resetBall(PANEL_WIDTH / 2, PANEL_HEIGHT / 2);
                 SoundManager.getInstance().playSound("paddle_hit");
             }
         }
 
-        // Kiểm tra thắng
-        if(manage.allBricksDestroyed()) {
+        if (manage.allBricksDestroyed()) {
             winGame();
         }
     }
@@ -213,7 +192,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         Rectangle ball_bounds = currentBall.getBounds();
         Rectangle paddle_bounds = paddle.getBounds();
 
-        if(hasCollision(ball_bounds, paddle_bounds)) {
+        if (hasCollision(ball_bounds, paddle_bounds)) {
             currentBall.reverseY();
             currentBall.randomizeMove();
             SoundManager.getInstance().playSound("paddle_hit");
@@ -234,7 +213,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         coinManager.earnCoinsFromBrick();
         score += 100;
 
-        // Tạo power-up ngẫu nhiên
+        particleManager.createBrickParticles(b);
+
         Rectangle bounds = b.getBounds();
         powerUpManager.trySpawnPowerUp(bounds.x, bounds.y, bounds.width);
 
@@ -243,7 +223,6 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
     private void checkPowerUpCollision() {
         Rectangle paddle_bounds = paddle.getBounds();
-
         for (PowerUp powerUp : powerUpManager.getPowerUps()) {
             if (!powerUp.isCollected() && hasCollision(powerUp.getBounds(), paddle_bounds)) {
                 powerUp.setCollected(true);
@@ -254,63 +233,44 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     }
 
     private void applyPowerUp(PowerUpType type) {
-        powerUpEndTime = System.currentTimeMillis() + 10000; // 10 giây
+        powerUpEndTime = System.currentTimeMillis() + 10000;
 
         switch (type) {
             case EXPAND_PADDLE:
                 paddle.width = (int)(originalPaddleWidth * 1.5);
                 showPowerUpMessage("Paddle Expanded!");
                 break;
-
             case SHRINK_PADDLE:
                 paddle.width = (int)(originalPaddleWidth * 0.7);
                 showPowerUpMessage("Paddle Shrinked!");
                 break;
-
             case SLOW_BALL:
-                ball.dX *= 0.5;
-                ball.dY *= 0.5;
-                for (Ball extraBall : extraBalls) {
-                    extraBall.dX *= 0.5;
-                    extraBall.dY *= 0.5;
-                }
+                ball.dX *= 0.5; ball.dY *= 0.5;
+                for (Ball eb : extraBalls) { eb.dX *= 0.5; eb.dY *= 0.5; }
                 showPowerUpMessage("Ball Slowed!");
                 break;
-
             case FAST_BALL:
-                ball.dX *= 1.5;
-                ball.dY *= 1.5;
-                for (Ball extraBall : extraBalls) {
-                    extraBall.dX *= 1.5;
-                    extraBall.dY *= 1.5;
-                }
+                ball.dX *= 1.5; ball.dY *= 1.5;
+                for (Ball eb : extraBalls) { eb.dX *= 1.5; eb.dY *= 1.5; }
                 showPowerUpMessage("Ball Faster!");
                 break;
-
             case MULTI_BALL:
-                // Tạo 2 bóng mới
-                Ball ball1 = new Ball(ball.x, ball.y);
-                Ball ball2 = new Ball(ball.x, ball.y);
-                ball1.dX = ball.dX * 0.8;
-                ball1.dY = -ball.dY;
-                ball2.dX = -ball.dX * 0.8;
-                ball2.dY = -ball.dY;
-                extraBalls.add(ball1);
-                extraBalls.add(ball2);
+                Ball b1 = new Ball(ball.x, ball.y);
+                Ball b2 = new Ball(ball.x, ball.y);
+                b1.dX = ball.dX * 0.8; b1.dY = -ball.dY;
+                b2.dX = -ball.dX * 0.8; b2.dY = -ball.dY;
+                extraBalls.add(b1); extraBalls.add(b2);
                 showPowerUpMessage("Multi Ball!");
                 break;
-
             case LASER:
                 laserActive = true;
-                laserEndTime = System.currentTimeMillis() + 15000; // 15 giây
-                showPowerUpMessage("Laser Active! (Press SPACE)");
+                laserEndTime = System.currentTimeMillis() + 15000;
+                showPowerUpMessage("Laser Active! (SPACE)");
                 break;
-
             case EXTRA_LIFE:
                 lives++;
                 showPowerUpMessage("+1 Life!");
                 break;
-
             case BONUS_POINTS:
                 score += 500;
                 showPowerUpMessage("+500 Points!");
@@ -319,25 +279,19 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     }
 
     private void checkPowerUpExpiration() {
-        long currentTime = System.currentTimeMillis();
-
-        // Hết hiệu lực paddle size
-        if (currentTime > powerUpEndTime && paddle.width != originalPaddleWidth) {
+        long now = System.currentTimeMillis();
+        if (now > powerUpEndTime && paddle.width != originalPaddleWidth) {
             paddle.width = originalPaddleWidth;
         }
-
-        // Hết hiệu lực laser
-        if (laserActive && currentTime > laserEndTime) {
+        if (laserActive && now > laserEndTime) {
             laserActive = false;
         }
     }
 
     private void checkLaserCollision() {
         ArrayList<Brick> bricks = manage.getBricks();
-
         for (Laser laser : powerUpManager.getLasers()) {
             if (!laser.isActive()) continue;
-
             for (Brick brick : bricks) {
                 if (!brick.isDestroyed() && hasCollision(laser.getBounds(), brick.getBounds())) {
                     brick.setDestroyed(true);
@@ -351,36 +305,27 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         }
     }
 
-    private void showPowerUpMessage(String message) {
-        // Có thể thêm hiệu ứng hiển thị message ở đây
-        System.out.println("Power-up: " + message);
+    private void showPowerUpMessage(String msg) {
+        System.out.println("Power-up: " + msg);
     }
 
     private void gameOver() {
-        timer.stop();
+        stopGame();  // DỪNG TIMER
         SoundManager.getInstance().playSound("game_over");
 
-        if(scoreManager.isHighScore(score)) {
-            String name = JOptionPane.showInputDialog(
-                    this,
-                    "🎉 NEW HIGH SCORE! 🎉\n\nScore: " + score + "\n\nEnter your name:",
-                    "High Score!",
-                    JOptionPane.PLAIN_MESSAGE
-            );
-
-            if(name != null && !name.trim().isEmpty()) {
+        if (scoreManager.isHighScore(score)) {
+            String name = JOptionPane.showInputDialog(this,
+                    "NEW HIGH SCORE!\nScore: " + score + "\nEnter name:", "High Score!", JOptionPane.PLAIN_MESSAGE);
+            if (name != null && !name.trim().isEmpty()) {
                 scoreManager.addScore(name.trim().toUpperCase(), score);
             }
         }
 
-        int option = JOptionPane.showConfirmDialog(
-                this,
-                "Game Over!\n\nScore: " + score + "\nCoins: " + coinManager.getCoins() + "\n\nChơi lại?",
-                "Game Over",
-                JOptionPane.YES_NO_OPTION
-        );
+        int opt = JOptionPane.showConfirmDialog(this,
+                "Game Over!\nScore: " + score + "\nCoins: " + coinManager.getCoins() + "\n\nPlay again?",
+                "Game Over", JOptionPane.YES_NO_OPTION);
 
-        if(option == JOptionPane.YES_OPTION) {
+        if (opt == JOptionPane.YES_OPTION) {
             resetGame();
         } else {
             Main.showMenu();
@@ -388,24 +333,19 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     }
 
     private void winGame() {
-        timer.stop();
+        stopGame();  // DỪNG TIMER
         score += 500;
         coinManager.addCoins(100);
-        JOptionPane.showMessageDialog(
-                this,
-                "Chúc mừng! Bạn đã hoàn thành màn!\n\nScore: " + score + "\n+100 coins bonus",
-                "Chiến thắng",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+        JOptionPane.showMessageDialog(this,
+                "Congrats! You completed the level!\nScore: " + score + "\n+100 coins bonus",
+                "Victory", JOptionPane.INFORMATION_MESSAGE);
         Main.showMenu();
     }
 
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == timer) {
+        if (e.getSource() == timer) {
             ball.move();
-            for (Ball extraBall : extraBalls) {
-                extraBall.move();
-            }
+            for (Ball b : extraBalls) b.move();
             updateGame();
             repaint();
         }
@@ -417,32 +357,86 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
     private void handleBallBounce(Ball currentBall, Brick brick, Rectangle ballBounds) {
         Rectangle brickBounds = brick.getBounds();
+        double left = ballBounds.getMaxX() - brickBounds.getMinX();
+        double right = brickBounds.getMaxX() - ballBounds.getMinX();
+        double top = ballBounds.getMaxY() - brickBounds.getMinY();
+        double bottom = brickBounds.getMaxY() - ballBounds.getMinY();
+        double min = Math.min(Math.min(left, right), Math.min(top, bottom));
 
-        double overlapLeft = ballBounds.getMaxX() - brickBounds.getMinX();
-        double overlapRight = brickBounds.getMaxX() - ballBounds.getMinX();
-        double overlapTop = ballBounds.getMaxY() - brickBounds.getMinY();
-        double overlapBottom = brickBounds.getMaxY() - ballBounds.getMinY();
-
-        double minOverlap = Math.min(
-                Math.min(overlapLeft, overlapRight),
-                Math.min(overlapTop, overlapBottom)
-        );
-
-        if(minOverlap == overlapTop || minOverlap == overlapBottom) {
+        if (min == top || min == bottom) {
             currentBall.reverseY();
         } else {
             currentBall.reverseX();
         }
     }
 
-    private void resetGame() {
-        score = 0;
-        lives = 3;
-        laserActive = false;
+    private void saveCurrentGame() {
+        GameSave save = new GameSave();
+        save.score = score;
+        save.lives = lives;
+        save.coins = coinManager.getCoins();
+        save.paddleX = paddle.x;
+        save.paddleY = paddle.y;
+        save.paddleWidth = paddle.width;
+        save.ballX = ball.x;
+        save.ballY = ball.y;
+        save.ballDX = ball.dX;
+        save.ballDY = ball.dY;
+
+        for (Ball b : extraBalls) {
+            save.extraBalls.add(new GameSave.BallSave(b.x, b.y, b.dX, b.dY));
+        }
+
+        for (Brick b : manage.getBricks()) {
+            save.bricks.add(new GameSave.BrickSave(b.getBounds().x, b.getBounds().y, b.getBounds().width, b.getBounds().height, b.isDestroyed()));
+        }
+
+        save.powerUpEndTime = powerUpEndTime;
+        save.laserEndTime = laserEndTime;
+        save.laserActive = laserActive;
+
+        SaveManager.saveGame(save);
+    }
+
+    public void loadGame(GameSave save) {
+        if (save == null) return;
+        score = save.score;
+        lives = save.lives;
+        coinManager.setCoins(save.coins);
+        paddle.x = save.paddleX;
+        paddle.y = save.paddleY;
+        paddle.width = save.paddleWidth;
+        ball.x = (int) save.ballX;
+        ball.y = (int) save.ballY;
+        ball.dX = save.ballDX;
+        ball.dY = save.ballDY;
         extraBalls.clear();
-        powerUpManager.clear();
-        initGameObjects();
-        timer.start();
+        for (GameSave.BallSave bs : save.extraBalls) {
+            Ball b = new Ball((int)bs.x, (int)bs.y);
+            b.dX = bs.dx; b.dY = bs.dy;
+            extraBalls.add(b);
+        }
+        ArrayList<Brick> bricks = manage.getBricks();
+        for (int i = 0; i < bricks.size() && i < save.bricks.size(); i++) {
+            bricks.get(i).setDestroyed(save.bricks.get(i).destroyed);
+        }
+        powerUpEndTime = save.powerUpEndTime;
+        laserEndTime = save.laserEndTime;
+        laserActive = save.laserActive;
+        isResumed = true;
         repaint();
+    }
+
+    private void resetGame() {
+        score = 0; lives = 3; laserActive = false;
+        extraBalls.clear(); powerUpManager.clear();
+        initGameObjects(); particleManager.clear();
+        timer.start(); repaint();
+    }
+
+    public void stopGame() {
+        if (timer != null && timer.isRunning()) {
+            timer.stop();
+        }
     }
 }

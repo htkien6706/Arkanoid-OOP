@@ -4,7 +4,7 @@ import java.awt.event.*;
 import java.awt.geom.*;
 
 public class MenuPanel extends JPanel {
-
+    private JButton continueButton;   // THÊM DÒNG NÀY
     public MenuPanel() {
         setLayout(null);
         setPreferredSize(new Dimension(800, 600));
@@ -44,7 +44,7 @@ public class MenuPanel extends JPanel {
         add(subtitleLabel);
 
         // Buttons
-        String[] buttonTexts = {"START GAME", "HIGH SCORES", "SHOP", "OPTIONS", "EXIT"};
+        String[] buttonTexts = {"START GAME","CONTINUE", "HIGH SCORES", "SHOP", "OPTIONS", "EXIT"};
         int startY = 220;
 
         for (int i = 0; i < buttonTexts.length; i++) {
@@ -58,21 +58,34 @@ public class MenuPanel extends JPanel {
                     System.out.println("START GAME clicked!");
                     Main.startGame();
                 } else if (index == 1) {
-                    // ĐÃ SỬA: Gọi showHighScores() thay vì thông báo "Đang phát triển"
+                    Main.continueGame(); // MỚI
+                } else if (index == 2) {
                     System.out.println("HIGH SCORES clicked!");
                     Main.showHighScores();
-                } else if (index == 2) {
+                } else if (index == 3) {
                     System.out.println("SHOP clicked!");
                     Main.showShop();
-                } else if (index == 3) {
+                } else if (index == 4) {
                     System.out.println("OPTION clicked!");
                     Main.showOptions();
-                } else if (index == 4) {
+                } else if (index == 5) {
                     System.exit(0);
                 }
             });
 
+            // THÊM: Lưu nút CONTINUE để cập nhật sau
+            if (index == 1) {
+                continueButton = button;
+            }
+
+            // Giữ nguyên đoạn kiểm tra save cũ (sẽ được thay bằng updateContinueButton)
+            if (!SaveManager.hasSave() && index == 1) {
+                button.setEnabled(false);
+                button.setText("CONTINUE GAME (No Save)");
+            }
+
             add(button);
+
         }
 
         // Version label
@@ -183,5 +196,18 @@ public class MenuPanel extends JPanel {
         });
 
         return button;
+    }
+
+    public void updateContinueButton() {
+        boolean hasSave = SaveManager.hasSave();
+        if (hasSave) {
+            continueButton.setEnabled(true);
+            continueButton.setText("CONTINUE GAME");
+        } else {
+            continueButton.setEnabled(false);
+            continueButton.setText("CONTINUE GAME (No Save)");
+            // TÙY CHỌN: ẨN HOÀN TOÀN
+             continueButton.setVisible(false);
+        }
     }
 }

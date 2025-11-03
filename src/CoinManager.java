@@ -9,6 +9,10 @@ public class CoinManager {
         return coins;
     }
 
+    public void setCoins(int coins) {
+        this.coins = coins;
+    }
+
     public void addCoins(int amount) {
         coins += amount;
     }
@@ -20,6 +24,7 @@ public class CoinManager {
         }
         return false;
     }
+
 
     public void earnCoinsFromBrick() {
         addCoins(10); // Mỗi gạch bị phá = 10 coins

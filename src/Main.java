@@ -34,6 +34,9 @@ public class Main {
         frame.add(menuPanel);
         frame.revalidate();
         frame.repaint();
+
+        // Gọi cập nhật trạng thái nút Continue
+        SwingUtilities.invokeLater(() -> menuPanel.updateContinueButton());
     }
 
     public static void startGame() {
@@ -44,6 +47,9 @@ public class Main {
         frame.revalidate();
         frame.repaint();
         gamePanel.requestFocusInWindow();
+
+        // KHỞI ĐỘNG TIMER
+        gamePanel.initTimer(); // Đảm bảo timer chạy
     }
 
     public static void showShop() {
@@ -71,6 +77,23 @@ public class Main {
         frame.repaint();
     }
 
+    public static void continueGame() {
+        GameSave save = SaveManager.loadGame();
+        if (save == null) {
+            JOptionPane.showMessageDialog(frame, "Không có dữ liệu lưu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        SoundManager.getInstance().stopBackgroundMusic();
+        frame.getContentPane().removeAll();
+        GamePanel gamePanel = new GamePanel(shopManager, coinManager);
+        gamePanel.loadGame(save); // Tải save
+        frame.add(gamePanel);
+        frame.revalidate();
+        frame.repaint();
+        gamePanel.requestFocusInWindow();
+    }
+
     public static ShopManager getShopManager() {
         return shopManager;
     }
@@ -83,4 +106,5 @@ public class Main {
     public static ScoreManager getScoreManager() {
         return scoreManager;
     }
+
 }

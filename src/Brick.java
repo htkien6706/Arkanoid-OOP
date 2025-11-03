@@ -62,4 +62,8 @@ public class Brick {
         return new Color(r, g, b);
     }
 
+    public Color getBaseColor() {
+        return baseColor;
+    }
+
 }
