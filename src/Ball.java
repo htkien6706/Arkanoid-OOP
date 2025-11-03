@@ -3,7 +3,7 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 
 public class Ball {
-    int x,y;
+    int x, y;
     double dX, dY;
     final double SPEED = 5;
     int diameter;
@@ -14,19 +14,13 @@ public class Ball {
         this.y = y;
         diameter = 16;
 
-        double angle = Math.toRadians(rand.nextInt(60) + 30); // 30°–90°
+        double angle = Math.toRadians(rand.nextInt(60) + 30);
         dX = SPEED * Math.cos(angle);
         dY = SPEED * Math.sin(angle);
     }
 
-    //
-
     public boolean isFallingToGround(double PANEL_HEIGHT) {
-        if(y >= PANEL_HEIGHT) {
-            return true;
-        }
-
-        return false;
+        return y >= PANEL_HEIGHT;
     }
 
     public void move() {
@@ -48,11 +42,12 @@ public class Ball {
 
     public void checkWallColiision(int PANEL_HEIGHT, int PANEL_WIDTH) {
         if(x < 0 || x + diameter > PANEL_WIDTH) {
-            reverseX(); // đổi hướng chuyện động vì góc toi bang goc phan xa
+            reverseX();
+            SoundManager.getInstance().playSound("wall_hit");
         }
-
         else if(y < 0) {
-            reverseY(); // đổi hướng chuyển động
+            reverseY();
+            SoundManager.getInstance().playSound("wall_hit");
         }
     }
 
@@ -63,33 +58,34 @@ public class Ball {
         dY = SPEED * 0.6;
     }
 
-
-    // coi quả bóng tròn như là một hình vuông để handle cho dễ nhé
     public Rectangle getBounds() {
         return new Rectangle(x, y, diameter, diameter);
     }
 
+    // Vẽ quả bóng với màu từ skin
+    public void draw(Graphics2D g2d, Color ballColor) {
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    //vẽ quả bóng // túi nữa gọi trong paintComponent
-    public void draw(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
-
-        // Bật anti-aliasing cho mướt
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-
-        // giống box shadow html css
-        g2d.setColor(new Color(0, 0, 0, 50)); // Đen trong suốt
+        // Shadow
+        g2d.setColor(new Color(0, 0, 0, 50));
         g2d.fillOval(x + 2, y + 2, diameter, diameter);
 
-        // Vẽ body chính - gradient từ sáng đến tối
+        // Tạo màu tối hơn cho gradient
+        Color darkerColor = new Color(
+                Math.max(0, ballColor.getRed() - 55),
+                Math.max(0, ballColor.getGreen() - 100),
+                Math.max(0, ballColor.getBlue() - 100)
+        );
+
+        // Body với gradient
         GradientPaint bodyGradient = new GradientPaint(
-                x, y, new Color(255, 100, 100),              // Đỏ sáng
-                x + diameter, y + diameter, new Color(200, 0, 0)  // Đỏ đậm
+                x, y, ballColor,
+                x + diameter, y + diameter, darkerColor
         );
         g2d.setPaint(bodyGradient);
         g2d.fillOval(x, y, diameter, diameter);
 
+        // Highlight effect
         RadialGradientPaint highlight = new RadialGradientPaint(
                 x + diameter * 0.3f, y + diameter * 0.3f,
                 diameter * 0.4f,
@@ -102,13 +98,25 @@ public class Ball {
         g2d.setPaint(highlight);
         g2d.fillOval(x, y, diameter, diameter);
 
-        g2d.setColor(new Color(100, 0, 0));
+        // Border
+        Color borderColor = new Color(
+                Math.max(0, ballColor.getRed() - 100),
+                Math.max(0, ballColor.getGreen() - 100),
+                Math.max(0, ballColor.getBlue() - 100)
+        );
+        g2d.setColor(borderColor);
         g2d.setStroke(new BasicStroke(1.5f));
         g2d.drawOval(x, y, diameter, diameter);
 
-        g2d.setColor(new Color(255, 150, 150, 100));
+        // Inner highlight border
+        Color lightBorderColor = new Color(
+                Math.min(255, ballColor.getRed() + 55),
+                Math.min(255, ballColor.getGreen() + 50),
+                Math.min(255, ballColor.getBlue() + 50),
+                100
+        );
+        g2d.setColor(lightBorderColor);
         g2d.setStroke(new BasicStroke(1f));
         g2d.drawOval(x + 1, y + 1, diameter - 2, diameter - 2);
     }
-
 }

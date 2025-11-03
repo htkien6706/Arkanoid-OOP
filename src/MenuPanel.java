@@ -3,27 +3,39 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 
-// ĐỔI extends JFrame THÀNH extends JPanel
 public class MenuPanel extends JPanel {
+
+    // --- Biến animation ---
+    private float glowAlpha = 0f;
+    private boolean glowIncreasing = true;
+    private int starOffset = 0;
+    private float subtitleAlpha = 1f;
+    private boolean subtitleFadeOut = true;
+    private int buttonOffsetY = 100; // Hiệu ứng trượt vào cho nút
+    private Timer animationTimer;
+
+    private JLabel subtitleLabel;
+    private JButton[] buttons;
 
     public MenuPanel() {
         setLayout(null);
         setPreferredSize(new Dimension(800, 600));
 
-        // Title label với hiệu ứng neon
+        SoundManager.getInstance().playBackgroundMusic("menu_music");
+
+        // Title label với hiệu ứng neon động
         JLabel titleLabel = new JLabel("ARKANOID") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Shadow/Glow effect
-                g2d.setColor(new Color(0, 255, 255, 100));
                 g2d.setFont(new Font("Arial Black", Font.BOLD, 72));
-                for (int i = 0; i < 10; i++) {
-                    g2d.drawString("ARKANOID",
-                            getWidth()/2 - 220 + (int)(Math.random() * 4),
-                            80 + (int)(Math.random() * 4));
+
+                // Shadow/Glow
+                g2d.setColor(new Color(0, 255, 255, (int)(80 + 80 * glowAlpha)));
+                for (int i = 0; i < 8; i++) {
+                    g2d.drawString("ARKANOID", getWidth()/2 - 220, 80);
                 }
 
                 // Main text
@@ -35,8 +47,15 @@ public class MenuPanel extends JPanel {
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
         add(titleLabel);
 
-        // Subtitle
-        JLabel subtitleLabel = new JLabel("BRICK BREAKER");
+        // Subtitle nhấp nháy
+        subtitleLabel = new JLabel("BRICK BREAKER") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, subtitleAlpha));
+                super.paintComponent(g);
+            }
+        };
         subtitleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         subtitleLabel.setForeground(new Color(255, 200, 100));
         subtitleLabel.setBounds(0, 140, 800, 30);
@@ -45,29 +64,25 @@ public class MenuPanel extends JPanel {
 
         // Buttons
         String[] buttonTexts = {"START GAME", "HIGH SCORES", "SHOP", "OPTIONS", "EXIT"};
+        buttons = new JButton[buttonTexts.length];
         int startY = 220;
 
         for (int i = 0; i < buttonTexts.length; i++) {
             JButton button = createStyledButton(buttonTexts[i]);
-            button.setBounds(250, startY + (i * 70), 300, 40);
+            button.setBounds(250, startY + (i * 70) + buttonOffsetY, 300, 40);
 
             final int index = i;
             button.addActionListener(e -> {
-                if (index == 0) {
-                    System.out.println("START GAME clicked!"); // Debug
-                    Main.startGame();
-                }  else if (index == 4) {
-                    System.exit(0);
-                }
-
-                else {
-                    JOptionPane.showMessageDialog(this, buttonTexts[index] + " clicked!");
-                }
+                SoundManager.getInstance().playSound("click");
+                if (index == 0) Main.startGame();
+                else if (index == 2) Main.showShop();
+                else if (index == 3) Main.showOptions();
+                else if (index == 4) System.exit(0);
+                else JOptionPane.showMessageDialog(this, buttonTexts[index] + " - Đang phát triển!");
             });
 
-
-
             add(button);
+            buttons[i] = button;
         }
 
         // Version label
@@ -78,22 +93,49 @@ public class MenuPanel extends JPanel {
         add(versionLabel);
 
         // Copyright label
-        JLabel copyrightLabel = new JLabel("© 2025 - Press SPACE to Start");
+        JLabel copyrightLabel = new JLabel("© 2025 - Nhấn SPACE để bắt đầu");
         copyrightLabel.setFont(new Font("Arial", Font.PLAIN, 12));
         copyrightLabel.setForeground(new Color(150, 150, 150));
         copyrightLabel.setBounds(0, 540, 800, 20);
         copyrightLabel.setHorizontalAlignment(JLabel.CENTER);
         add(copyrightLabel);
+
+        // --- Timer animation ---
+        animationTimer = new Timer(40, e -> {
+            // Glow tiêu đề
+            glowAlpha += glowIncreasing ? 0.05f : -0.05f;
+            if (glowAlpha > 1f) glowIncreasing = false;
+            if (glowAlpha < 0f) glowIncreasing = true;
+
+            // Nền sao trôi
+            starOffset = (starOffset + 1) % 800;
+
+            // Subtitle mờ dần
+            subtitleAlpha += subtitleFadeOut ? -0.03f : 0.03f;
+            if (subtitleAlpha < 0.3f) subtitleFadeOut = false;
+            if (subtitleAlpha > 1f) subtitleFadeOut = true;
+            subtitleLabel.repaint();
+
+            // Hiệu ứng trượt cho nút (vào chậm dần)
+            if (buttonOffsetY > 0) {
+                buttonOffsetY -= 5;
+                for (int i = 0; i < buttons.length; i++) {
+                    buttons[i].setLocation(250, 220 + i * 70 + buttonOffsetY);
+                }
+            }
+
+            repaint();
+        });
+        animationTimer.start();
     }
 
-    // VẼ BACKGROUND Ở ĐÂY (di chuyển từ menuPanel bên trong ra ngoài)
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Gradient background từ tím đậm sang xanh dương
+        // Gradient background
         GradientPaint gradient = new GradientPaint(
                 0, 0, new Color(25, 25, 60),
                 0, getHeight(), new Color(15, 32, 70)
@@ -101,22 +143,20 @@ public class MenuPanel extends JPanel {
         g2d.setPaint(gradient);
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
-        // Vẽ các "ngôi sao" background
+        // Sao lấp lánh di chuyển
         g2d.setColor(new Color(255, 255, 255, 100));
-        for (int i = 0; i < 50; i++) {
-            int x = (i * 137) % getWidth();
+        for (int i = 0; i < 60; i++) {
+            int x = (i * 131 + starOffset) % getWidth();
             int y = (i * 241) % getHeight();
             g2d.fillOval(x, y, 2, 2);
         }
 
-        // Vẽ grid pattern
-        g2d.setColor(new Color(100, 150, 255, 30));
-        for (int i = 0; i < getWidth(); i += 40) {
+        // Grid pattern nhẹ
+        g2d.setColor(new Color(100, 150, 255, 25));
+        for (int i = 0; i < getWidth(); i += 40)
             g2d.drawLine(i, 0, i, getHeight());
-        }
-        for (int i = 0; i < getHeight(); i += 40) {
+        for (int i = 0; i < getHeight(); i += 40)
             g2d.drawLine(0, i, getWidth(), i);
-        }
     }
 
     private JButton createStyledButton(String text) {
@@ -125,35 +165,19 @@ public class MenuPanel extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                // Lấy hover state
                 boolean hover = Boolean.TRUE.equals(getClientProperty("hover"));
 
-                // Button background với gradient
-                if (hover) {
-                    GradientPaint gp = new GradientPaint(
-                            0, 0, new Color(0, 150, 255),
-                            0, getHeight(), new Color(0, 100, 200)
-                    );
-                    g2d.setPaint(gp);
-                } else {
-                    GradientPaint gp = new GradientPaint(
-                            0, 0, new Color(50, 50, 100),
-                            0, getHeight(), new Color(30, 30, 70)
-                    );
-                    g2d.setPaint(gp);
-                }
-
+                GradientPaint gp = hover
+                        ? new GradientPaint(0, 0, new Color(0, 150, 255), 0, getHeight(), new Color(0, 100, 200))
+                        : new GradientPaint(0, 0, new Color(50, 50, 100), 0, getHeight(), new Color(30, 30, 70));
+                g2d.setPaint(gp);
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
 
-                // Border
                 g2d.setColor(hover ? new Color(0, 200, 255) : new Color(100, 100, 150));
                 g2d.setStroke(new BasicStroke(2));
                 g2d.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 15, 15);
 
-                // Text
                 g2d.setColor(Color.WHITE);
-                g2d.setFont(getFont());
                 FontMetrics fm = g2d.getFontMetrics();
                 int x = (getWidth() - fm.stringWidth(getText())) / 2;
                 int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
@@ -162,20 +186,17 @@ public class MenuPanel extends JPanel {
         };
 
         button.setFont(new Font("Arial", Font.BOLD, 18));
-        button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setContentAreaFilled(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Hover effect
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 button.putClientProperty("hover", true);
                 button.repaint();
             }
-
             @Override
             public void mouseExited(MouseEvent e) {
                 button.putClientProperty("hover", false);
