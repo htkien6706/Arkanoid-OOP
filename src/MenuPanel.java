@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.Random;
+<<<<<<< Updated upstream
 
 public class MenuPanel extends JPanel implements ActionListener {
     private JButton continueButton;
@@ -43,6 +44,30 @@ public class MenuPanel extends JPanel {
 
 =======
 >>>>>>> Stashed changes
+=======
+
+public class MenuPanel extends JPanel implements ActionListener {
+    private JButton continueButton;
+
+    // THÊM: Animation system
+    private Timer animationTimer;
+    private ArrayList<MenuParticle> particles;
+    private ArrayList<FloatingOrb> floatingOrbs;
+    private Random random;
+
+    // THÊM: Hiệu ứng động
+    private float gradientOffset = 0;
+    private float waveOffset = 0;
+    private float titlePulse = 1.0f;
+    private float titlePulseDirection = 0.003f;
+    private float glowIntensity = 0;
+    private Point mousePos = new Point(400, 300);
+
+    // THÊM: Animation cho title
+    private float neonFlicker = 1.0f;
+    private long lastFlickerTime = 0;
+
+>>>>>>> Stashed changes
     public MenuPanel() {
         setLayout(null);
         setPreferredSize(new Dimension(800, 600));
@@ -50,8 +75,11 @@ public class MenuPanel extends JPanel {
         SoundManager.getInstance().playBackgroundMusic("menu_music");
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         // Title label với hiệu ứng neon động
 =======
+=======
+>>>>>>> Stashed changes
         // THÊM: Khởi tạo animation system
         random = new Random();
         particles = new ArrayList<>();
@@ -60,6 +88,9 @@ public class MenuPanel extends JPanel {
         initMouseTracking();
 
         // Title label với hiệu ứng neon NÂNG CẤP
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         JLabel titleLabel = new JLabel("ARKANOID") {
             @Override
@@ -67,6 +98,7 @@ public class MenuPanel extends JPanel {
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
                 g2d.setFont(new Font("Arial Black", Font.BOLD, 72));
 
@@ -96,6 +128,24 @@ public class MenuPanel extends JPanel {
                 int textWidth = fm.stringWidth("ARKANOID");
                 int textX = (getWidth() - textWidth) / 2;
 
+=======
+                // THÊM: Outer glow với nhiều layers
+                for (int radius = 20; radius > 0; radius -= 2) {
+                    g2d.setColor(new Color(0, 255, 255, (int)(5 * neonFlicker)));
+                    g2d.setFont(new Font("Arial Black", Font.BOLD, 72 + radius/2));
+                    FontMetrics fm = g2d.getFontMetrics();
+                    int textWidth = fm.stringWidth("ARKANOID");
+                    g2d.drawString("ARKANOID", (getWidth() - textWidth)/2, 80);
+                }
+
+                // Enhanced shadow/Glow effect
+                g2d.setColor(new Color(0, 255, 255, (int)(120 * neonFlicker)));
+                g2d.setFont(new Font("Arial Black", Font.BOLD, 72));
+                FontMetrics fm = g2d.getFontMetrics();
+                int textWidth = fm.stringWidth("ARKANOID");
+                int textX = (getWidth() - textWidth) / 2;
+
+>>>>>>> Stashed changes
                 for (int i = 0; i < 15; i++) {
                     int offsetX = (int)(Math.sin(i * 0.5 + glowIntensity) * 3);
                     int offsetY = (int)(Math.cos(i * 0.5 + glowIntensity) * 3);
@@ -118,6 +168,9 @@ public class MenuPanel extends JPanel {
                 g2d.setColor(new Color(255, 255, 255, (int)(150 * neonFlicker)));
                 g2d.setStroke(new BasicStroke(2f));
                 g2d.drawString("ARKANOID", textX - 1, 79);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
             }
         };
@@ -125,6 +178,7 @@ public class MenuPanel extends JPanel {
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
         add(titleLabel);
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         // Subtitle nhấp nháy
         subtitleLabel = new JLabel("BRICK BREAKER") {
@@ -138,6 +192,8 @@ public class MenuPanel extends JPanel {
         subtitleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         subtitleLabel.setForeground(new Color(255, 200, 100));
 =======
+=======
+>>>>>>> Stashed changes
         // Subtitle NÂNG CẤP với animation
         JLabel subtitleLabel = new JLabel("BRICK BREAKER") {
             private float letterSpacing = 0;
@@ -179,11 +235,15 @@ public class MenuPanel extends JPanel {
                 }
             }
         };
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         subtitleLabel.setBounds(0, 140, 800, 30);
         subtitleLabel.setHorizontalAlignment(JLabel.CENTER);
         add(subtitleLabel);
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         // Buttons
         String[] buttonTexts = {"START GAME", "HIGH SCORES", "SHOP", "OPTIONS", "EXIT"};
@@ -199,6 +259,13 @@ public class MenuPanel extends JPanel {
         int startY = 220;
 
         for (int i = 0; i < buttonTexts.length; i++) {
+=======
+        // Buttons NÂNG CẤP
+        String[] buttonTexts = {"START GAME","CONTINUE", "HIGH SCORES", "SHOP", "OPTIONS", "EXIT"};
+        int startY = 220;
+
+        for (int i = 0; i < buttonTexts.length; i++) {
+>>>>>>> Stashed changes
             JButton button = createEnhancedStyledButton(buttonTexts[i], i);
             button.setBounds(250, startY + (i * 60), 300, 40);
 >>>>>>> Stashed changes
@@ -249,6 +316,9 @@ public class MenuPanel extends JPanel {
             }
 
             add(button);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         }
 
@@ -285,6 +355,7 @@ public class MenuPanel extends JPanel {
         add(copyrightLabel);
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         // --- Timer animation ---
         animationTimer = new Timer(40, e -> {
             // Glow tiêu đề
@@ -313,6 +384,8 @@ public class MenuPanel extends JPanel {
         });
         animationTimer.start();
 =======
+=======
+>>>>>>> Stashed changes
         // THÊM: Start animation timer
         animationTimer = new Timer(16, this); // ~60 FPS
         animationTimer.start();
@@ -349,6 +422,9 @@ public class MenuPanel extends JPanel {
                 mousePos = e.getPoint();
             }
         });
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     }
 
@@ -368,11 +444,14 @@ public class MenuPanel extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         // Sao lấp lánh di chuyển
         g2d.setColor(new Color(255, 255, 255, 100));
         for (int i = 0; i < 60; i++) {
             int x = (i * 131 + starOffset) % getWidth();
 =======
+=======
+>>>>>>> Stashed changes
         // THÊM: Secondary animated gradient overlay
         GradientPaint overlay = new GradientPaint(
                 gradientOffset, 0, new Color(30, 60, 100, 50),
@@ -380,6 +459,7 @@ public class MenuPanel extends JPanel {
         );
         g2d.setPaint(overlay);
         g2d.fillRect(0, 0, getWidth(), getHeight());
+<<<<<<< Updated upstream
 
         // THÊM: Vẽ floating orbs trước
         drawFloatingOrbs(g2d);
@@ -471,6 +551,91 @@ public class MenuPanel extends JPanel {
             g2d.drawLine(0, i, getWidth(), i);
     }
 
+=======
+
+        // THÊM: Vẽ floating orbs trước
+        drawFloatingOrbs(g2d);
+
+        // Vẽ các "ngôi sao" background NÂNG CẤP
+        drawEnhancedStars(g2d);
+
+        // Vẽ grid pattern NÂNG CẤP với fade effect
+        drawEnhancedGrid(g2d);
+
+        // THÊM: Vẽ particles
+        drawParticles(g2d);
+
+        // THÊM: Vẽ mouse glow effect
+        drawMouseGlow(g2d);
+
+        // THÊM: Vẽ animated wave lines
+        drawWaveLines(g2d);
+    }
+
+    // THÊM: Vẽ floating orbs phát sáng
+    private void drawFloatingOrbs(Graphics2D g2d) {
+        for (FloatingOrb orb : floatingOrbs) {
+            // Glow effect
+            RadialGradientPaint glow = new RadialGradientPaint(
+                    orb.x, orb.y, orb.size * 2,
+                    new float[]{0f, 0.5f, 1f},
+                    new Color[]{
+                            new Color(orb.color.getRed(), orb.color.getGreen(), orb.color.getBlue(), 80),
+                            new Color(orb.color.getRed(), orb.color.getGreen(), orb.color.getBlue(), 30),
+                            new Color(orb.color.getRed(), orb.color.getGreen(), orb.color.getBlue(), 0)
+                    }
+            );
+            g2d.setPaint(glow);
+            g2d.fillOval((int)(orb.x - orb.size * 2), (int)(orb.y - orb.size * 2),
+                    (int)(orb.size * 4), (int)(orb.size * 4));
+
+            // Core
+            RadialGradientPaint core = new RadialGradientPaint(
+                    orb.x, orb.y, orb.size,
+                    new float[]{0f, 1f},
+                    new Color[]{
+                            new Color(255, 255, 255, 150),
+                            orb.color
+                    }
+            );
+            g2d.setPaint(core);
+            g2d.fillOval((int)(orb.x - orb.size), (int)(orb.y - orb.size),
+                    (int)(orb.size * 2), (int)(orb.size * 2));
+        }
+    }
+
+    // THÊM: Enhanced stars với twinkle effect
+    private void drawEnhancedStars(Graphics2D g2d) {
+        for (int i = 0; i < 50; i++) {
+            int x = (i * 137) % getWidth();
+            int y = (i * 241) % getHeight();
+            float twinkle = (float)Math.sin(System.currentTimeMillis() * 0.001 + i) * 0.5f + 0.5f;
+            g2d.setColor(new Color(255, 255, 255, (int)(150 * twinkle)));
+            int size = (int)(2 + twinkle * 2);
+            g2d.fillOval(x, y, size, size);
+
+            // Star glow
+            g2d.setColor(new Color(255, 255, 255, (int)(30 * twinkle)));
+            g2d.fillOval(x - 2, y - 2, size + 4, size + 4);
+        }
+    }
+
+    // THÊM: Enhanced grid với fade và glow
+    private void drawEnhancedGrid(Graphics2D g2d) {
+        g2d.setStroke(new BasicStroke(1f));
+        for (int i = 0; i < getWidth(); i += 40) {
+            float alpha = (float)Math.sin(i * 0.02 + waveOffset * 0.1) * 0.3f + 0.5f;
+            g2d.setColor(new Color(100, 150, 255, (int)(30 * alpha)));
+            g2d.drawLine(i, 0, i, getHeight());
+        }
+        for (int i = 0; i < getHeight(); i += 40) {
+            float alpha = (float)Math.sin(i * 0.02 + waveOffset * 0.1) * 0.3f + 0.5f;
+            g2d.setColor(new Color(100, 150, 255, (int)(30 * alpha)));
+            g2d.drawLine(0, i, getWidth(), i);
+        }
+    }
+
+>>>>>>> Stashed changes
     // THÊM: Vẽ particles
     private void drawParticles(Graphics2D g2d) {
         for (MenuParticle p : particles) {
@@ -536,10 +701,13 @@ public class MenuPanel extends JPanel {
                 boolean hover = Boolean.TRUE.equals(getClientProperty("hover"));
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 GradientPaint gp = hover
                         ? new GradientPaint(0, 0, new Color(0, 150, 255), 0, getHeight(), new Color(0, 100, 200))
                         : new GradientPaint(0, 0, new Color(50, 50, 100), 0, getHeight(), new Color(30, 30, 70));
 =======
+=======
+>>>>>>> Stashed changes
                 // Update hover animation
                 if (hover) {
                     hoverProgress = Math.min(1f, hoverProgress + 0.1f);
@@ -567,6 +735,9 @@ public class MenuPanel extends JPanel {
                         0, 0, baseColor,
                         0, getHeight(), endColor
                 );
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                 g2d.setPaint(gp);
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
@@ -593,8 +764,11 @@ public class MenuPanel extends JPanel {
                 g2d.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 15, 15);
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 g2d.setColor(Color.WHITE);
 =======
+=======
+>>>>>>> Stashed changes
                 // Text shadow
                 g2d.setColor(new Color(0, 0, 0, 150));
                 g2d.setFont(getFont());
@@ -687,6 +861,52 @@ public class MenuPanel extends JPanel {
         }
     }
 
+    // THÊM: Animation update loop
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Update animations
+        gradientOffset += 0.5f;
+        if (gradientOffset > 600) gradientOffset = 0;
+
+        waveOffset += 2f;
+        if (waveOffset > 1000) waveOffset = 0;
+
+        glowIntensity += 0.05f;
+        if (glowIntensity > Math.PI * 2) glowIntensity = 0;
+
+        // Neon flicker effect (occasional)
+        long now = System.currentTimeMillis();
+        if (now - lastFlickerTime > 3000 && random.nextFloat() < 0.01f) {
+            neonFlicker = random.nextFloat() * 0.3f + 0.7f;
+            lastFlickerTime = now;
+        } else if (neonFlicker < 1.0f) {
+            neonFlicker = Math.min(1.0f, neonFlicker + 0.05f);
+        }
+
+        // Update particles
+        for (MenuParticle p : particles) {
+            p.update();
+            if (p.y < -10) {
+                p.y = 610;
+                p.x = random.nextInt(800);
+            }
+        }
+
+        // Update floating orbs
+        for (FloatingOrb orb : floatingOrbs) {
+            orb.update();
+        }
+
+        repaint();
+    }
+
+    // THÊM: Stop animations khi chuyển scene
+    public void stopAnimations() {
+        if (animationTimer != null && animationTimer.isRunning()) {
+            animationTimer.stop();
+        }
+    }
+
     public void updateContinueButton() {
         boolean hasSave = SaveManager.hasSave();
         if (hasSave) {
@@ -696,6 +916,56 @@ public class MenuPanel extends JPanel {
             continueButton.setEnabled(false);
             continueButton.setText("CONTINUE GAME (No Save)");
             continueButton.setVisible(false);
+<<<<<<< Updated upstream
+=======
+        }
+    }
+
+    // THÊM: Inner class cho particles
+    private class MenuParticle {
+        float x, y, size, speed, alpha;
+
+        MenuParticle(float x, float y, float size, float speed) {
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.speed = speed;
+            this.alpha = random.nextFloat() * 0.5f + 0.3f;
+        }
+
+        void update() {
+            y -= speed;
+            alpha = (float)(0.3f + Math.sin(y * 0.01f) * 0.3f);
+        }
+    }
+
+    // THÊM: Inner class cho floating orbs
+    private class FloatingOrb {
+        float x, y, size;
+        float vx, vy;
+        Color color;
+
+        FloatingOrb(float x, float y, float size, Color color) {
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.color = color;
+            this.vx = (random.nextFloat() - 0.5f) * 0.5f;
+            this.vy = (random.nextFloat() - 0.5f) * 0.5f;
+        }
+
+        void update() {
+            x += vx;
+            y += vy;
+
+            // Bounce off edges
+            if (x < -size || x > 800 + size) vx *= -1;
+            if (y < -size || y > 600 + size) vy *= -1;
+
+            // Keep in bounds
+            x = Math.max(-size, Math.min(800 + size, x));
+            y = Math.max(-size, Math.min(600 + size, y));
+>>>>>>> Stashed changes
         }
     }
 
