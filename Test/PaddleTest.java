@@ -13,5 +13,11 @@ class PaddleTest {
         paddle.x = 100;
         paddle.width = 100;
     }
-    
+
+    @Test
+    void moveLeft() {
+        int initialX = paddle.x;
+        paddle.moveLeft();
+        assertEquals(initialX - 20, paddle.x);
+    }
 }
