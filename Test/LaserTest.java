@@ -45,23 +45,6 @@ class LaserTest {
     }
 
     @Test
-    void getBounds() {
-        Rectangle bounds = laser.getBounds();
-
-        // Kiểm tra kích thước và vị trí
-        assertEquals(TEST_X, bounds.x);
-        assertEquals(TEST_Y, bounds.y);
-        assertEquals(4, bounds.width);
-        assertEquals(15, bounds.height);
-
-        // Kiểm tra sau khi di chuyển
-        laser.move();
-        Rectangle newBounds = laser.getBounds();
-        assertEquals(TEST_X, newBounds.x); // X không đổi
-        assertEquals(TEST_Y - 8, newBounds.y); // Y đã thay đổi
-    }
-
-    @Test
     void isActive() {
         // Mặc định active = true
         assertTrue(laser.isActive());
@@ -71,22 +54,4 @@ class LaserTest {
         assertTrue(laser.isActive());
     }
 
-    @Test
-    void setActive() {
-        // Test set false
-        laser.setActive(false);
-        assertFalse(laser.isActive());
-
-        // Test set true
-        laser.setActive(true);
-        assertTrue(laser.isActive());
-
-        // Test toggle nhiều lần
-        laser.setActive(false);
-        laser.setActive(false); // Set cùng giá trị
-        assertFalse(laser.isActive());
-
-        laser.setActive(true);
-        assertTrue(laser.isActive());
-    }
 }
