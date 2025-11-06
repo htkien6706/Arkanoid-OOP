@@ -187,7 +187,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
     }
 
     private void updateBall(Ball currentBall) {
-        currentBall.checkWallColiision(PANEL_HEIGHT, PANEL_WIDTH);
+        currentBall.checkWallCollision(PANEL_HEIGHT, PANEL_WIDTH);
 
         Rectangle ball_bounds = currentBall.getBounds();
         Rectangle paddle_bounds = paddle.getBounds();

@@ -30,7 +30,7 @@ public class Ball {
 
     public void randomizeMove() {
         dX += (rand.nextDouble() - 0.5) * 0.5;
-    }
+    } // rand.nextDouble() lấy ra 1 giá trị từ 0.0 đến 1.0
 
     public void reverseX() {
         dX = -dX;
@@ -40,12 +40,12 @@ public class Ball {
         dY = -dY;
     }
 
-    public void checkWallColiision(int PANEL_HEIGHT, int PANEL_WIDTH) {
+    public void checkWallCollision(int PANEL_HEIGHT, int PANEL_WIDTH) {
         if(x < 0 || x + diameter > PANEL_WIDTH) {
             reverseX();
             SoundManager.getInstance().playSound("wall_hit");
         }
-        else if(y < 0) {
+        if(y < 0) {
             reverseY();
             SoundManager.getInstance().playSound("wall_hit");
         }
