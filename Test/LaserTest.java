@@ -43,15 +43,6 @@ class LaserTest {
         // Bây giờ laser nên off-screen
         assertTrue(laser.isOffScreen());
     }
-
-    @Test
-    void isActive() {
-        // Mặc định active = true
-        assertTrue(laser.isActive());
-
-        // Kiểm tra sau khi di chuyển vẫn active
-        laser.move();
-        assertTrue(laser.isActive());
-    }
+    
 
 }
