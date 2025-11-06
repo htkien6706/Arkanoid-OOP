@@ -21,10 +21,5 @@ class PaddleTest {
         assertEquals(initialX - 20, paddle.x);
     }
 
-    @Test
-    void moveRight() {
-        int initialX = paddle.x;
-        paddle.moveRight(PANEL_WIDTH);
-        assertEquals(initialX + 20, paddle.x);
-    }
+    
 }

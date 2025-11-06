@@ -54,5 +54,5 @@ class BrickTest {
         assertNotSame(bounds, bounds2);
         assertEquals(bounds, bounds2);
     }
-    
+
 }
