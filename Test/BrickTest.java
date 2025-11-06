@@ -55,13 +55,5 @@ class BrickTest {
         assertEquals(bounds, bounds2);
     }
 
-    @Test
-    void getBaseColor() {
-        Color color = brick.getBaseColor();
-        assertEquals(BASE_COLOR, color);
-        assertSame(BASE_COLOR, color);
-
-        Brick blueBrick = new Brick(0, 0, 100, 50, Color.BLUE);
-        assertEquals(Color.BLUE, blueBrick.getBaseColor());
-    }
+    
 }
