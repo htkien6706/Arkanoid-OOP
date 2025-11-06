@@ -86,8 +86,6 @@ class BallTest {
     }
 
     @Test
-<<<<<<< HEAD
-=======
     void resetBall() {
         ball.resetBall(50, 60);
         assertEquals(50, ball.x);
@@ -98,7 +96,6 @@ class BallTest {
     }
 
     @Test
->>>>>>> 6e133ba5dfa40a1f438f4a23e1f37e031c27266e
     void getBounds() {
         ball.x = 5;
         ball.y = 7;
@@ -108,8 +105,6 @@ class BallTest {
         assertEquals(ball.diameter, r.width);
         assertEquals(ball.diameter, r.height);
     }
-<<<<<<< HEAD
-=======
 
     @Test
     void draw() {
@@ -123,5 +118,4 @@ class BallTest {
             g.dispose();
         }
     }
->>>>>>> 6e133ba5dfa40a1f438f4a23e1f37e031c27266e
-}
+} // ← THÊM DÒNG NÀY ĐỂ ĐÓNG CLASS
