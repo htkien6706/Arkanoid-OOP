@@ -1,7 +1,7 @@
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-import java.awt.geom.*;
+
 
 public class MenuPanel extends JPanel {
     private JButton continueButton;   // THÊM DÒNG NÀY
@@ -16,13 +16,17 @@ public class MenuPanel extends JPanel {
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+                // Hiệu ứng sáng dần
+                float alpha = Math.min(1f, Math.max(0f, glowAlpha));
+                Color glow = new Color(0f, 1f, 1f, alpha);
+
                 // Shadow/Glow effect
-                g2d.setColor(new Color(0, 255, 255, 100));
+                g2d.setColor(glow);
                 g2d.setFont(new Font("Arial Black", Font.BOLD, 72));
                 for (int i = 0; i < 10; i++) {
                     g2d.drawString("ARKANOID",
-                            getWidth()/2 - 220 + (int)(Math.random() * 4),
-                            80 + (int)(Math.random() * 4));
+                            getWidth()/2 - 220 + (int)(Math.random() * 3),
+                            80 + (int)(Math.random() * 3));
                 }
 
                 // Main text
@@ -102,6 +106,28 @@ public class MenuPanel extends JPanel {
         copyrightLabel.setBounds(0, 540, 800, 20);
         copyrightLabel.setHorizontalAlignment(JLabel.CENTER);
         add(copyrightLabel);
+
+        // 🔥 Thêm Timer cho animation
+        Timer timer = new Timer(30, e -> {
+            // Hiệu ứng sáng cho tiêu đề
+            if (glowIncreasing) {
+                glowAlpha += 0.02f;
+                if (glowAlpha >= 1f) glowIncreasing = false;
+            } else {
+                glowAlpha -= 0.02f;
+                if (glowAlpha <= 0.3f) glowIncreasing = true;
+            }
+
+            // Hiệu ứng di chuyển sao
+            starOffset += 1;
+            if (starOffset > getHeight()) starOffset = 0;
+
+            // Fade in nút
+            if (buttonAlpha < 1f) buttonAlpha += 0.02f;
+
+            repaint();
+        });
+        timer.start();
     }
 
     @Override
@@ -118,16 +144,16 @@ public class MenuPanel extends JPanel {
         g2d.setPaint(gradient);
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
-        // Vẽ các "ngôi sao" background
+        // Các "ngôi sao" di chuyển
         g2d.setColor(new Color(255, 255, 255, 100));
-        for (int i = 0; i < 50; i++) {
-            int x = (i * 137) % getWidth();
-            int y = (i * 241) % getHeight();
+        for (int i = 0; i < 60; i++) {
+            int x = (i * 131) % getWidth();
+            int y = ((i * 241) + starOffset) % getHeight();
             g2d.fillOval(x, y, 2, 2);
         }
 
-        // Vẽ grid pattern
-        g2d.setColor(new Color(100, 150, 255, 30));
+        // Grid nhẹ
+        g2d.setColor(new Color(100, 150, 255, 25));
         for (int i = 0; i < getWidth(); i += 40) {
             g2d.drawLine(i, 0, i, getHeight());
         }
@@ -159,6 +185,7 @@ public class MenuPanel extends JPanel {
                     g2d.setPaint(gp);
                 }
 
+                g2d.setPaint(gp);
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
 
                 g2d.setColor(hover ? new Color(0, 200, 255) : new Color(100, 100, 150));
@@ -187,7 +214,7 @@ public class MenuPanel extends JPanel {
                 button.putClientProperty("hover", true);
                 button.repaint();
             }
-
+            
             @Override
             public void mouseExited(MouseEvent e) {
                 button.putClientProperty("hover", false);

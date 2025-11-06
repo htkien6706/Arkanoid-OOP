@@ -122,6 +122,13 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
         ball = new Ball(300, 300);
         extraBalls.clear();
         manage = new BrickManagement(6, 12, 50, 30, 10);
+        
+        // ==================== THÊM MỚI: Reset game state ====================
+        score = 0;
+        lives = 3;
+        gameOver = false;
+        gameWon = false;
+        gamePaused = false;
     }
 
     public void initPanel() {
