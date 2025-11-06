@@ -95,7 +95,16 @@ class BallTest {
         assertEquals(expected, ball.dY, 1e-9);
     }
 
-    
+    @Test
+    void getBounds() {
+        ball.x = 5;
+        ball.y = 7;
+        Rectangle r = ball.getBounds();
+        assertEquals(5, r.x);
+        assertEquals(7, r.y);
+        assertEquals(ball.diameter, r.width);
+        assertEquals(ball.diameter, r.height);
+    }
 
 
 
