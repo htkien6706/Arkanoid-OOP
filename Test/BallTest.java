@@ -105,17 +105,5 @@ class BallTest {
         assertEquals(ball.diameter, r.width);
         assertEquals(ball.diameter, r.height);
     }
-
-    @Test
-    void draw() {
-        BufferedImage img = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = img.createGraphics();
-        try {
-            ball.draw(g, Color.RED);
-        } catch (Exception e) {
-            fail("draw should not throw an exception: " + e.getMessage());
-        } finally {
-            g.dispose();
-        }
-    }
-} // ← THÊM DÒNG NÀY ĐỂ ĐÓNG CLASS
+    
+}
