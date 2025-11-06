@@ -49,7 +49,7 @@ public class MenuPanel extends JPanel {
 
         for (int i = 0; i < buttonTexts.length; i++) {
             JButton button = createStyledButton(buttonTexts[i]);
-            button.setBounds(250, startY + (i * 70), 300, 40);
+            button.setBounds(250, startY + (i * 60), 300, 40);
 
             final int index = i;
             button.addActionListener(e -> {
