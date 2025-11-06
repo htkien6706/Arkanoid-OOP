@@ -9,7 +9,7 @@ public class BrickManagement {
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
                 int x = 30 + j * (brickWidth + padding);
-                int y = 40 + i * (brickHeight + padding);
+                int y = 100 + i * (brickHeight + padding);
                 Color c = getColorForRow(i, rows);
 
                 Bricks.add(new Brick(x, y, brickWidth, brickHeight, c));
