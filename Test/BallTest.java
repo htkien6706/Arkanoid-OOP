@@ -86,6 +86,19 @@ class BallTest {
     }
 
     @Test
+<<<<<<< HEAD
+=======
+    void resetBall() {
+        ball.resetBall(50, 60);
+        assertEquals(50, ball.x);
+        assertEquals(60, ball.y);
+        double expected = ball.SPEED * 0.6;
+        assertEquals(expected, ball.dX, 1e-9);
+        assertEquals(expected, ball.dY, 1e-9);
+    }
+
+    @Test
+>>>>>>> 6e133ba5dfa40a1f438f4a23e1f37e031c27266e
     void getBounds() {
         ball.x = 5;
         ball.y = 7;
@@ -95,4 +108,20 @@ class BallTest {
         assertEquals(ball.diameter, r.width);
         assertEquals(ball.diameter, r.height);
     }
+<<<<<<< HEAD
+=======
+
+    @Test
+    void draw() {
+        BufferedImage img = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        try {
+            ball.draw(g, Color.RED);
+        } catch (Exception e) {
+            fail("draw should not throw an exception: " + e.getMessage());
+        } finally {
+            g.dispose();
+        }
+    }
+>>>>>>> 6e133ba5dfa40a1f438f4a23e1f37e031c27266e
 }
