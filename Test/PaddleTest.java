@@ -1,14 +1,17 @@
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class PaddleTest {
 
-    @Test
-    void moveLeft() {
-    }
+    private Paddle paddle;
+    private final int PANEL_WIDTH = 800;
 
-    @Test
-    void moveRight() {
+    @BeforeEach
+    void setUp() {
+        paddle = new Paddle();
+        paddle.x = 100;
+        paddle.width = 100;
     }
+    
 }
