@@ -69,19 +69,19 @@ class BallTest {
         // left wall
         ball.x = -5;
         ball.dX = 2.0;
-        ball.checkWallCollision(600, 800);
+        ball.checkWallCollision(800);
         assertTrue(ball.dX < 0, "dX should be reversed when hitting left wall");
 
         // right wall
         ball.x = 800;
         ball.dX = -3.0;
-        ball.checkWallCollision(600, 800);
+        ball.checkWallCollision(800);
         assertTrue(ball.dX > 0, "dX should be reversed when hitting right wall");
 
         // top wall
         ball.y = -2;
         ball.dY = 2.5;
-        ball.checkWallCollision(600, 800);
+        ball.checkWallCollision(800);
         assertTrue(ball.dY < 0, "dY should be reversed when hitting top wall");
     }
 
@@ -102,8 +102,8 @@ class BallTest {
         Rectangle r = ball.getBounds();
         assertEquals(5, r.x);
         assertEquals(7, r.y);
-        assertEquals(ball.diameter, r.width);
-        assertEquals(ball.diameter, r.height);
+        assertEquals(ball.getDiameter(), r.width);
+        assertEquals(ball.getDiameter(), r.height);
     }
 
 

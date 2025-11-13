@@ -1,12 +1,11 @@
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.Random;
 
 public class Ball {
-    int x, y;
-    double dX, dY;
+    private int diameter;
+     int x, y;
+     double dX, dY;
     final double SPEED = 4;
-    int diameter;
     Random rand = new Random();
 
     Ball(int x, int y) {
@@ -17,6 +16,28 @@ public class Ball {
         double angle = Math.toRadians(rand.nextInt(60) + 30);
         dX = SPEED * Math.cos(angle);
         dY = SPEED * Math.sin(angle);
+
+    }
+
+    public int getDiameter() {
+        return diameter;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
     public boolean isFallingToGround(double PANEL_HEIGHT) {
@@ -29,7 +50,7 @@ public class Ball {
     }
 
     public void randomizeMove() {
-        dX += (rand.nextDouble() - 0.5) * 0.5;
+        dX += rand.nextDouble() * 0.5;
     } // rand.nextDouble() lấy ra 1 giá trị từ 0.0 đến 1.0
 
     public void reverseX() {
@@ -40,13 +61,15 @@ public class Ball {
         dY = -dY;
     }
 
-    public void checkWallCollision(int PANEL_HEIGHT, int PANEL_WIDTH) {
+    public void checkWallCollision(int PANEL_WIDTH) {
         if(x < 0 || x + diameter > PANEL_WIDTH) {
             reverseX();
+            dY += (rand.nextDouble() - 0.5) * 0.3; // Thêm biến đổi ngẫu nhiên nhỏ vào dY
             SoundManager.getInstance().playSound("wall_hit");
         }
         if(y < 0) {
             reverseY();
+            dX += (rand.nextDouble() - 0.5) * 0.3; // Thêm biến đổi ngẫu nhiên nhỏ vào dX
             SoundManager.getInstance().playSound("wall_hit");
         }
     }

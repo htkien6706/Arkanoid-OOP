@@ -39,19 +39,6 @@ public class Main {
         SwingUtilities.invokeLater(() -> menuPanel.updateContinueButton());
     }
 
-    public static void startGame() {
-        SoundManager.getInstance().stopBackgroundMusic();
-        frame.getContentPane().removeAll();
-        GamePanel gamePanel = new GamePanel(shopManager, coinManager);
-        frame.add(gamePanel);
-        frame.revalidate();
-        frame.repaint();
-        gamePanel.requestFocusInWindow();
-
-        // KHỞI ĐỘNG TIMER
-        gamePanel.initTimer(); // Đảm bảo timer chạy
-    }
-
     public static void showShop() {
         frame.getContentPane().removeAll();
         ShopPanel shopPanel = new ShopPanel(shopManager, coinManager);
@@ -93,6 +80,20 @@ public class Main {
         frame.repaint();
         gamePanel.requestFocusInWindow();
     }
+
+    public static void startGame() {
+        SoundManager.getInstance().stopBackgroundMusic();
+        frame.getContentPane().removeAll();
+        GamePanel gamePanel = new GamePanel(shopManager, coinManager);
+        frame.add(gamePanel);
+        frame.revalidate();
+        frame.repaint();
+        gamePanel.requestFocusInWindow();
+
+        // KHỞI ĐỘNG TIMER
+        gamePanel.initTimer(); // Đảm bảo timer chạy
+    }
+
 
     public static ShopManager getShopManager() {
         return shopManager;

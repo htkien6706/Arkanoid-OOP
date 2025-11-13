@@ -13,13 +13,13 @@ public class ParticleManager {
         random = new Random();
     }
 
-    public void createBrickParticles(Brick brick) {
+    public void createBrickParticles(Brick normalBrick) {
         if (particles.size() > MAX_PARTICLES) return; // Ngăn quá tải
 
-        Color baseColor = brick.getBaseColor();
+        Color baseColor = normalBrick.getBaseColor();
         int numParticles = 8 + random.nextInt(8); // Chỉ 8–15 hạt/gạch → nhẹ hơn
 
-        Rectangle bounds = brick.getBounds();
+        Rectangle bounds = normalBrick.getBounds();
         for (int i = 0; i < numParticles; i++) {
             if (particles.size() >= MAX_PARTICLES) break;
 

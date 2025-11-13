@@ -3,9 +3,9 @@ import org.junit.jupiter.api.Test;
 import java.awt.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class BrickTest {
+class NormalBrickTest {
 
-    private Brick brick;
+    private NormalBrick normalBrick;
     private final int X = 10;
     private final int Y = 20;
     private final int WIDTH = 50;
@@ -14,35 +14,35 @@ class BrickTest {
 
     @BeforeEach
     void setUp() {
-        brick = new Brick(X, Y, WIDTH, HEIGHT, BASE_COLOR);
+        normalBrick = new NormalBrick(X, Y, WIDTH, HEIGHT, BASE_COLOR);
     }
 
     @Test
     void isDestroyed() {
-        assertFalse(brick.isDestroyed());
+        assertFalse(normalBrick.isDestroyed());
 
-        brick.setDestroyed(true);
-        assertTrue(brick.isDestroyed());
+        normalBrick.setDestroyed(true);
+        assertTrue(normalBrick.isDestroyed());
 
-        brick.setDestroyed(false);
-        assertFalse(brick.isDestroyed());
+        normalBrick.setDestroyed(false);
+        assertFalse(normalBrick.isDestroyed());
     }
 
     @Test
     void setDestroyed() {
-        brick.setDestroyed(true);
-        assertTrue(brick.isDestroyed());
+        normalBrick.setDestroyed(true);
+        assertTrue(normalBrick.isDestroyed());
 
-        brick.setDestroyed(false);
-        assertFalse(brick.isDestroyed());
+        normalBrick.setDestroyed(false);
+        assertFalse(normalBrick.isDestroyed());
 
-        brick.setDestroyed(true);
-        assertTrue(brick.isDestroyed());
+        normalBrick.setDestroyed(true);
+        assertTrue(normalBrick.isDestroyed());
     }
 
     @Test
     void getBounds() {
-        Rectangle bounds = brick.getBounds();
+        Rectangle bounds = normalBrick.getBounds();
 
         assertNotNull(bounds);
         assertEquals(X, bounds.x);
@@ -50,7 +50,7 @@ class BrickTest {
         assertEquals(WIDTH, bounds.width);
         assertEquals(HEIGHT, bounds.height);
 
-        Rectangle bounds2 = brick.getBounds();
+        Rectangle bounds2 = normalBrick.getBounds();
         assertNotSame(bounds, bounds2);
         assertEquals(bounds, bounds2);
     }

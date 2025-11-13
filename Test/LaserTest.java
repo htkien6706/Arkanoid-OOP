@@ -43,6 +43,6 @@ class LaserTest {
         // Bây giờ laser nên off-screen
         assertTrue(laser.isOffScreen());
     }
-    
+
 
 }
