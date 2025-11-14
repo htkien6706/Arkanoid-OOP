@@ -14,18 +14,11 @@ public class ScoreManager {
     public void addScore(String playerName, int score) {
         highScores.add(new ScoreEntry(playerName, score));
 
-        // Sắp xếp giảm dần theo điểm
-        Collections.sort(highScores, new Comparator<ScoreEntry>() {
-            public int compare(ScoreEntry a, ScoreEntry b) {
-                return Integer.compare(b.getScore(), a.getScore());
-            }
-        });
-
         // Loại bỏ trùng lặp - chỉ giữ điểm cao nhất của mỗi tên
         Map<String, ScoreEntry> uniqueMap = new LinkedHashMap<>();
         for (ScoreEntry entry : highScores) {
             String name = entry.getPlayerName();
-            if (!uniqueMap.containsKey(name)) {
+            if (!uniqueMap.containsKey(name) || entry.getScore() > uniqueMap.get(name).getScore()) {
                 uniqueMap.put(name, entry);
             }
         }
@@ -35,6 +28,13 @@ public class ScoreManager {
         for (ScoreEntry entry : uniqueMap.values()) {
             highScores.add(entry);
         }
+
+        // Sắp xếp giảm dần theo điểm
+        Collections.sort(highScores, new Comparator<ScoreEntry>() {
+            public int compare(ScoreEntry a, ScoreEntry b) {
+                return Integer.compare(b.getScore(), a.getScore());
+            }
+        });
 
         // Chỉ giữ 10 điểm cao nhất
         if (highScores.size() > 10) {
@@ -65,8 +65,8 @@ public class ScoreManager {
     // Lưu điểm vào file
     private void saveScores() {
         try {
-            FileOutputStream fileOut = new FileOutputStream(SCORE_FILE);
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            FileOutputStream fileOut = new FileOutputStream(SCORE_FILE);  // tạo file để ghi
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);  // tạo đối tượng ghi dữ liệu vào luồng
             out.writeObject(highScores);
             out.close();
             fileOut.close();
@@ -77,12 +77,6 @@ public class ScoreManager {
 
     // Đọc điểm từ file
     private void loadScores() {
-        File file = new File(SCORE_FILE);
-        if (!file.exists()) {
-            createDefaultScores();
-            return;
-        }
-
         try {
             FileInputStream fileIn = new FileInputStream(SCORE_FILE);
             ObjectInputStream in = new ObjectInputStream(fileIn);
@@ -91,24 +85,12 @@ public class ScoreManager {
             fileIn.close();
         } catch (Exception e) {
             System.out.println("Không thể đọc điểm: " + e.getMessage());
-            createDefaultScores();
         }
-    }
-
-    // Tạo dữ liệu mẫu ban đầu
-    private void createDefaultScores() {
-        highScores.add(new ScoreEntry("PLAYER1", 5000));
-        highScores.add(new ScoreEntry("PLAYER2", 4500));
-        highScores.add(new ScoreEntry("PLAYER3", 4000));
-        highScores.add(new ScoreEntry("PLAYER4", 3500));
-        highScores.add(new ScoreEntry("PLAYER5", 3000));
-        saveScores();
     }
 
     // Xóa tất cả điểm
     public void clearScores() {
         highScores.clear();
-        createDefaultScores();
     }
 }
 

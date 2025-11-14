@@ -128,11 +128,13 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
         switch (levelPassed) {
             case 0:
-                manage = new Level1BrickManagement();
+                LevelCreator creator1 = new Level1Creator();
+                manage = creator1.createLevel();
                 manage.setBricks(4, 12, 50, 30, 5);
                 break;
             case 1:
-                manage = new Level2BrickManagement();
+                LevelCreator creator2 = new Level2Creator();
+                manage = creator2.createLevel();
                 manage.setBricks(6, 12, 50, 30, 5);
                 break;
             default:

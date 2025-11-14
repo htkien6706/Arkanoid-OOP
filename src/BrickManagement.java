@@ -22,6 +22,18 @@ public abstract class BrickManagement {
         }
     }
 
+    protected Color getColorForRow(int row) {
+        Color[] colors = {
+                new Color(255, 59, 59),   // Đỏ
+                new Color(255, 140, 66),  // Cam
+                new Color(255, 221, 87),  // Vàng
+                new Color(72, 219, 251),  // Xanh dương
+                new Color(29, 209, 161),  // Xanh lá
+                new Color(162, 155, 254)  // Tím
+        };
+        return colors[row % colors.length];
+    }
+
     public ArrayList<Brick> getBricks() {
         return allBricks;
     }
